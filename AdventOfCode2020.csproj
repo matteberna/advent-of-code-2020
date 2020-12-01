@@ -6,4 +6,10 @@
         <RootNamespace>Whiskee.AdventOfCode2020</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <None Update="Day1\input.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
