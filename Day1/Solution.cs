@@ -23,20 +23,23 @@ namespace Whiskee.AdventOfCode2020.Day1
             int firstSolution = 0;
             int secondSolution = 0;
 
-            foreach (int a in expenses)
+            for (int i = 0; i < expenses.Count; i++)
             {
-                foreach (int b in expenses)
+                for (int j = 0; j < expenses.Count; j++)
                 {
-                    if (a != b && a + b == 2020)
+                    if (i != j)
                     {
-                        firstSolution = a * b;
-                    }
-
-                    foreach (int c in expenses)
-                    {
-                        if (a != c && b != c && a + b + c == 2020)
+                        if (expenses[i] + expenses[j] == 2020)
                         {
-                            secondSolution = a * b * c;
+                            firstSolution = expenses[i] * expenses[j];
+                        }
+
+                        for (int k = 0; k < expenses.Count; k++)
+                        {
+                            if (i != k && j != k && expenses[i] + expenses[j] + expenses[k] == 2020)
+                            {
+                                secondSolution = expenses[i] * expenses[j] * expenses[k];
+                            }
                         }
                     }
                 }
