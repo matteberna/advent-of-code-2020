@@ -6,36 +6,61 @@ namespace Whiskee.AdventOfCode2020.Day3
 {
     public class Solution
     {
+        private static string[] _map;
+        private static Size _mapSize;
+        
         public static void Run()
         {
-            int x = 0;
-            int y = 0;
-            int treesEncountered = 0;
-            
-            string[] map = File.ReadAllLines(@"Day3/input.txt");
-            var mapSize = new Size(map[0].Length, map.Length);
+            _map = File.ReadAllLines(@"Day3/input.txt");
+            _mapSize = new Size(_map[0].Length, _map.Length);
 
-            while (y < mapSize.Height - 1)
-            {
-                x += 3;
-                y += 1;
-                
-                if (x >= mapSize.Width)
-                {
-                    // The pattern repeats horizontally
-                    x -= mapSize.Width;
-                }
-
-                string row = map[y];
-                if (row[x] == '#')
-                {
-                    treesEncountered++;
-                }
-            }
+            // First part
+            int treesEncountered = CheckSlope(3, 1);
             
             Console.WriteLine($"First solution: {treesEncountered}");
             
+            // Second part
+            long treesProduct = 1;
+            treesProduct *= CheckSlope(1, 1);
+            treesProduct *= CheckSlope(3, 1);
+            treesProduct *= CheckSlope(5, 1);
+            treesProduct *= CheckSlope(7, 1);
+            treesProduct *= CheckSlope(1, 2);
+            
+            Console.WriteLine($"Second solution: {treesProduct}");
         }
-        
+
+        private static int CheckSlope(int dx, int dy)
+        {
+            int x = 0;
+            int y = 0;
+            int trees = 0;
+            
+            while (true)
+            {
+                x += dx;
+                y += dy;
+                
+                if (x >= _mapSize.Width)
+                {
+                    // The pattern repeats horizontally
+                    x -= _mapSize.Width;
+                }
+                
+                // Was the map fully traversed?
+                if (y >= _mapSize.Height)
+                {
+                    break;
+                }
+
+                string row = _map[y];
+                if (row[x] == '#')
+                {
+                    trees++;
+                }
+            }
+
+            return trees;
+        }
     }
 }
