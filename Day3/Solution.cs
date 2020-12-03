@@ -36,25 +36,14 @@ namespace Whiskee.AdventOfCode2020.Day3
             int y = 0;
             int trees = 0;
             
-            while (true)
+            while (y < _mapSize.Height - dy)
             {
                 x += dx;
                 y += dy;
                 
-                if (x >= _mapSize.Width)
-                {
-                    // The pattern repeats horizontally
-                    x -= _mapSize.Width;
-                }
-                
-                // Was the map fully traversed?
-                if (y >= _mapSize.Height)
-                {
-                    break;
-                }
-
                 string row = _map[y];
-                if (row[x] == '#')
+                // The pattern repeats horizontally
+                if (row[x % _mapSize.Width] == '#')
                 {
                     trees++;
                 }
