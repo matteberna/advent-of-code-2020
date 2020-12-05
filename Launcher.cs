@@ -7,7 +7,8 @@
             // Day1.Solution.Run();
             // Day2.Solution.Run();
             // Day3.Solution.Run();
-            Day4.Solution.Run();
+            // Day4.Solution.Run();
+            Day5.Solution.Run();
         }
     }
 }
