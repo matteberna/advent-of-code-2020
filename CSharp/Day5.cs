@@ -1,15 +1,15 @@
 using System;
 using System.IO;
 
-namespace Whiskee.AdventOfCode2020.Day5
+namespace Whiskee.AdventOfCode2020.CSharp
 {
-    public class Solution
+    public class Day5 : Day
     {
         private const int Seats = 128 * 8;
         
-        public static void Run()
+        public override void Run()
         {
-            string[] seats = File.ReadAllLines(@"Day5/input.txt");
+            string[] seats = File.ReadAllLines(@"data/day5.txt");
             bool[] occupied = new bool[Seats];
             int highestId = 0;
             

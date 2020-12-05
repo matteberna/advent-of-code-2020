@@ -2,16 +2,16 @@ using System;
 using System.Drawing;
 using System.IO;
 
-namespace Whiskee.AdventOfCode2020.Day3
+namespace Whiskee.AdventOfCode2020.CSharp
 {
-    public class Solution
+    public class Day3 : Day
     {
-        private static string[] _map;
-        private static Size _mapSize;
+        private string[] _map;
+        private Size _mapSize;
         
-        public static void Run()
+        public override void Run()
         {
-            _map = File.ReadAllLines(@"Day3/input.txt");
+            _map = File.ReadAllLines(@"data/day3.txt");
             _mapSize = new Size(_map[0].Length, _map.Length);
 
             // First part
@@ -30,7 +30,7 @@ namespace Whiskee.AdventOfCode2020.Day3
             Console.WriteLine($"Second solution: {treesProduct}");
         }
 
-        private static int CheckSlope(int dx, int dy)
+        private int CheckSlope(int dx, int dy)
         {
             int x = 0;
             int y = 0;

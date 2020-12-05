@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Whiskee.AdventOfCode2020.Day1
+namespace Whiskee.AdventOfCode2020.CSharp
 {
-    internal class Solution
+    public class Day1 : Day
     {
-        public static void Run()
+        public override void Run()
         {
             var expenses = new List<int>();
             string line;
             
-            var input = new System.IO.StreamReader("Day1/input.txt");
+            var input = new System.IO.StreamReader("data/day1.txt");
             while((line = input.ReadLine()) != null)
             {
                 if (int.TryParse(line, out int expense))

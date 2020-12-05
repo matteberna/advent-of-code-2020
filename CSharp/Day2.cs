@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Whiskee.AdventOfCode2020.Day2
+namespace Whiskee.AdventOfCode2020.CSharp
 {
-    public class Solution
+    public class Day2 : Day
     {
         // "All alphanumeric elements"
-        private static readonly Regex SplitRegex = new Regex(@"\w+");
+        private static readonly Regex SplitRegex = new(@"\w+");
 
-        public static void Run()
+        public override void Run()
         {
             var entries = new List<MatchCollection>();
             string line;
@@ -18,7 +18,7 @@ namespace Whiskee.AdventOfCode2020.Day2
             int validFirst = 0;
             int validSecond = 0;
             
-            var input = new System.IO.StreamReader("Day2/input.txt");
+            var input = new System.IO.StreamReader("data/day2.txt");
             while((line = input.ReadLine()) != null)
             {
                 entries.Add(SplitRegex.Matches(line));

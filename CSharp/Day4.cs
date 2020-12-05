@@ -3,17 +3,17 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Whiskee.AdventOfCode2020.Day4
+namespace Whiskee.AdventOfCode2020.CSharp
 {
-    public class Solution
+    public class Day4 : Day
     {
         private static readonly Regex NumberRegex = new(@"\d+");
         private static readonly Regex HexRegex = new(@"[0-9a-f]{6}");
         private static readonly string[] EyeColors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
         
-        public static void Run()
+        public override void Run()
         {
-            string input = File.ReadAllText(@"Day4/input.txt");
+            string input = File.ReadAllText(@"data/day4.txt");
 
             // Passports are separated by empty lines
             string[] passports = input.Split(Environment.NewLine + Environment.NewLine);
@@ -50,7 +50,7 @@ namespace Whiskee.AdventOfCode2020.Day4
             Console.WriteLine($"Second solution: {validPassports}");
         }
 
-        private static bool ValidatePair(string key, string value)
+        private bool ValidatePair(string key, string value)
         {
             switch (key)
             {
