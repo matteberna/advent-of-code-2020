@@ -1,15 +1,16 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Whiskee.AdventOfCode2020.Day5
 {
     public class Solution
     {
+        private const int Seats = 128 * 8;
+        
         public static void Run()
         {
             string[] seats = File.ReadAllLines(@"Day5/input.txt");
-            var occupied = new List<int>();
+            bool[] occupied = new bool[Seats];
             int highestId = 0;
             
             foreach (string seat in seats)
@@ -41,16 +42,19 @@ namespace Whiskee.AdventOfCode2020.Day5
 
                     int id = rowOffset * 8 + columnOffset;
                     highestId = Math.Max(highestId, id);
-                    occupied.Add(id);
+                    occupied[id] = true;
                 }
             }
 
             Console.WriteLine($"First solution: {highestId}");
             
             // Second part
-            for (int id = highestId; id >= 0; id--)
+            // We aren't sitting at the very back (row 127, IDs starting from 127 * 8), therefore:
+            const int highestCheck = Seats - 8 - 1;
+            
+            for (int id = highestCheck; id >= 0; id--)
             {
-                if (!occupied.Contains(id))
+                if (!occupied[id] && occupied[id+1])
                 {
                     Console.WriteLine($"Second solution: {id}");
                     break;
