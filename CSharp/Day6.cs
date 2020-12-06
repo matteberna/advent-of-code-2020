@@ -14,7 +14,7 @@ namespace Whiskee.AdventOfCode2020.CSharp
             string[] groups = File.ReadAllText(@"data/day6.txt").Split(NewLine + NewLine);
 
             // First part
-            int anyCount = groups.Sum(g => new string(g.Where(char.IsLetter).ToArray()).Distinct().Count());
+            int anyCount = groups.Sum(g => g.Where(char.IsLetter).ToArray().Distinct().Count());
             Console.WriteLine($"First solution: {anyCount}");
             
             // Second part
