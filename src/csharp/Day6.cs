@@ -1,5 +1,4 @@
 using System.Linq;
-using static System.Environment;
 
 namespace Whiskee.AdventOfCode2020
 {
@@ -14,13 +13,13 @@ namespace Whiskee.AdventOfCode2020
 
         public override object SolveFirst()
         {
-            return _groups.Sum(g => g.Where(char.IsLetter).ToArray().Distinct().Count());
+            return _groups.Sum(g => g.Where(char.IsLetter).Distinct().Count());
         }
 
         private const string Answers = "abcdefghijklmnopqrstuvwxyz";
         public override object SolveSecond()
         {
-            return _groups.Sum(g => Answers.Count(a => g.Split(NewLine).All(m => m.Contains(a))));
+            return _groups.Sum(g => Answers.Count(a => g.SplitLines().All(m => m.Contains(a))));
         }
     }
 }
