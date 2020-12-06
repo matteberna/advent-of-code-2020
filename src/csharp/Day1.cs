@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Whiskee.AdventOfCode2020
 {
@@ -10,7 +9,7 @@ namespace Whiskee.AdventOfCode2020
         public override void ReadInput(string content)
         {
             _expenses = new List<int>();
-            foreach (string line in content.Split(Environment.NewLine))
+            foreach (string line in content.SplitLines())
             {
                 _expenses.Add(int.Parse(line));
             }

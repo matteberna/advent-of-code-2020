@@ -8,14 +8,13 @@ namespace Whiskee.AdventOfCode2020
     {
         private string[] _passports;
         
-        private static readonly Regex NumberRegex = new(@"\d+");
         private static readonly Regex HexRegex = new(@"[0-9a-f]{6}");
         private static readonly string[] EyeColors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
         
         public override void ReadInput(string content)
         {
             // Passports are separated by empty lines
-            _passports = content.Split(Environment.NewLine + Environment.NewLine);
+            _passports = content.SplitParagraphs();
             
             // Discard passports with missing fields, we don't need them for the second part
             string[] requiredFields = {"byr:", "iyr:", "eyr:", "hgt:", "hcl:", "ecl:", "pid:"}; 
@@ -72,13 +71,13 @@ namespace Whiskee.AdventOfCode2020
                     // 150-193 (cm)
                     if (value.EndsWith("cm"))
                     {
-                        int height = int.Parse(NumberRegex.Matches(value)[0].Value);
+                        int? height = value.FindFirstInteger();
                         return height >= 150 && height <= 193;
                     }
                     // 59-76 (in)
                     else if (value.EndsWith("in"))
                     {
-                        int height = int.Parse(NumberRegex.Matches(value)[0].Value);
+                        int? height = value.FindFirstInteger();
                         return height >= 59 && height <= 76;
                     }
                     return false;

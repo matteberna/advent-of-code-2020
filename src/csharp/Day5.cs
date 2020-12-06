@@ -12,7 +12,7 @@ namespace Whiskee.AdventOfCode2020
 
         public override void ReadInput(string content)
         {
-            _seats = content.Split(Environment.NewLine);
+            _seats = content.SplitLines();
         }
 
         public override object SolveFirst()

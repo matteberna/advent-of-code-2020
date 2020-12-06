@@ -1,17 +1,12 @@
-using System;
-using System.Drawing;
-
 namespace Whiskee.AdventOfCode2020
 {
     public class Day3 : Day
     {
-        private string[] _map;
-        private Size _mapSize;
+        private Toolkit.Map _map;
         
         public override void ReadInput(string content)
         {
-            _map = content.Split(Environment.NewLine);
-            _mapSize = new Size(_map[0].Length, _map.Length);
+            _map = content.ToMap();
         }
 
         public override object SolveFirst()
@@ -37,14 +32,13 @@ namespace Whiskee.AdventOfCode2020
             int y = 0;
             int trees = 0;
             
-            while (y < _mapSize.Height - dy)
+            while (y < _map.Height - dy)
             {
                 x += dx;
                 y += dy;
                 
-                string row = _map[y];
                 // The pattern repeats horizontally
-                if (row[x % _mapSize.Width] == '#')
+                if (_map.At[x % _map.Width, y] == '#')
                 {
                     trees++;
                 }

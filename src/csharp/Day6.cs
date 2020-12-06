@@ -9,7 +9,7 @@ namespace Whiskee.AdventOfCode2020
 
         public override void ReadInput(string content)
         {
-            _groups = content.Split(NewLine + NewLine);
+            _groups = content.SplitParagraphs();
         }
 
         public override object SolveFirst()
@@ -17,10 +17,10 @@ namespace Whiskee.AdventOfCode2020
             return _groups.Sum(g => g.Where(char.IsLetter).ToArray().Distinct().Count());
         }
 
+        private const string Answers = "abcdefghijklmnopqrstuvwxyz";
         public override object SolveSecond()
         {
-            return _groups.Sum(g => "abcdefghijklmnopqrstuvwxyz"
-                .Count(a => g.Split(NewLine).All(m => m.Contains(a))));
+            return _groups.Sum(g => Answers.Count(a => g.Split(NewLine).All(m => m.Contains(a))));
         }
     }
 }
