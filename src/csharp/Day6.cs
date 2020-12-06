@@ -13,7 +13,7 @@ namespace Whiskee.AdventOfCode2020
 
         public override object SolveFirst()
         {
-            return _groups.Sum(g => g.Where(char.IsLetter).Distinct().Count());
+            return _groups.Sum(g => g.Distinct().Count());
         }
 
         private const string Answers = "abcdefghijklmnopqrstuvwxyz";
