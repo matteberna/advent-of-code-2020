@@ -11,15 +11,10 @@ namespace Whiskee.AdventOfCode2020.CSharp
         {
             string[] groups = File.ReadAllText(@"data/day6.txt").Split(Environment.NewLine + Environment.NewLine);
 
-            int count = 0;
-            foreach (var group in groups)
-            {
-                string letters = new(group.Where(char.IsLetter).ToArray());
-                var distinct = letters.Distinct();
-                count += distinct.Count();
-            }
+            // First part
+            int anyCount = groups.Sum(g => new string(g.Where(char.IsLetter).ToArray()).Distinct().Count());
+            Console.WriteLine($"First solution: {anyCount}");
 
-            Console.WriteLine($"First solution: {count}");
         }
     }
 }
