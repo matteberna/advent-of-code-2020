@@ -1,5 +1,5 @@
 ﻿using System;
-using Whiskee.AdventOfCode2020.CSharp;
+using System.IO;
 
 namespace Whiskee.AdventOfCode2020
 {
@@ -16,16 +16,19 @@ namespace Whiskee.AdventOfCode2020
                 try
                 {
                     Console.Write(Environment.NewLine + "AdventOfCode2020> ");
-                    string[] input = Console.ReadLine()?.Split(" ");
+                    string[] command = Console.ReadLine()?.Split(" ");
                     
-                    switch (input?[0])
+                    switch (command?[0])
                     {
                         case "exit":
                             return;
                         case "solve":
-                            if (int.TryParse(input[1], out int number) && number is >= 1 and <= 25)
+                            if (int.TryParse(command[1], out int number) && number is >= 1 and <= 25)
                             {
-                                Days[number].Run();
+                                string input = File.ReadAllText($"data/day{number}.txt");
+                                Days[number].ReadInput(input);
+                                Console.WriteLine($"First part: {Days[number].SolveFirst()}");
+                                Console.WriteLine($"Second part: {Days[number].SolveSecond()}");
                             }
                             break;
                     }
@@ -52,6 +55,8 @@ namespace Whiskee.AdventOfCode2020
 
     public abstract class Day
     {
-        public abstract void Run();
+        public abstract void ReadInput(string content);
+        public abstract object SolveFirst();
+        public abstract object SolveSecond();
     }
 }

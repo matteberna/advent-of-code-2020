@@ -3,30 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Whiskee.AdventOfCode2020.CSharp
+namespace Whiskee.AdventOfCode2020
 {
     public class Day2 : Day
     {
+        private List<MatchCollection> _entries;
+        
         // "All alphanumeric elements"
         private static readonly Regex SplitRegex = new(@"\w+");
-
-        public override void Run()
+        
+        public override void ReadInput(string content)
         {
-            var entries = new List<MatchCollection>();
-            string line;
-            
-            int validFirst = 0;
-            int validSecond = 0;
-            
-            var input = new System.IO.StreamReader("data/day2.txt");
-            while((line = input.ReadLine()) != null)
+            _entries = new List<MatchCollection>();
+            foreach (string line in content.Split(Environment.NewLine))
             {
-                entries.Add(SplitRegex.Matches(line));
+                _entries.Add(SplitRegex.Matches(line));
             }
-            input.Close();
-            
-            // First part
-            foreach (var entry in entries)
+        }
+
+        public override object SolveFirst()
+        {
+            int valid = 0;
+            foreach (var entry in _entries)
             {
                 int min = int.Parse(entry[0].Value);
                 int max = int.Parse(entry[1].Value);
@@ -36,12 +34,17 @@ namespace Whiskee.AdventOfCode2020.CSharp
                 int occurrences = password.Count(c => c == required);
                 if (occurrences >= min && occurrences <= max)
                 {
-                    validFirst++;
+                    valid++;
                 }
             }
-            
-            // Second part
-            foreach (var entry in entries)
+
+            return valid;
+        }
+
+        public override object SolveSecond()
+        {
+            int valid = 0;
+            foreach (var entry in _entries)
             {
                 int index1 = int.Parse(entry[0].Value) - 1;
                 int index2 = int.Parse(entry[1].Value) - 1;
@@ -49,15 +52,11 @@ namespace Whiskee.AdventOfCode2020.CSharp
                 string password = entry[3].Value;
                 if (password[index1] == required ^ password[index2] == required)
                 {
-                    validSecond++;
+                    valid++;
                 }
-                
             }
-            
-            Console.WriteLine($"First solution: {validFirst}");
-            Console.WriteLine($"Second solution: {validSecond}");
-            
+
+            return valid;
         }
-        
     }
 }

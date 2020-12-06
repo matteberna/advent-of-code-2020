@@ -1,32 +1,36 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Whiskee.AdventOfCode2020.CSharp
+namespace Whiskee.AdventOfCode2020
 {
     public class Day4 : Day
     {
+        private string[] _passports;
+        
         private static readonly Regex NumberRegex = new(@"\d+");
         private static readonly Regex HexRegex = new(@"[0-9a-f]{6}");
         private static readonly string[] EyeColors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
         
-        public override void Run()
+        public override void ReadInput(string content)
         {
-            string input = File.ReadAllText(@"data/day4.txt");
-
             // Passports are separated by empty lines
-            string[] passports = input.Split(Environment.NewLine + Environment.NewLine);
+            _passports = content.Split(Environment.NewLine + Environment.NewLine);
             
             // Discard passports with missing fields, we don't need them for the second part
             string[] requiredFields = {"byr:", "iyr:", "eyr:", "hgt:", "hcl:", "ecl:", "pid:"}; 
-            passports = passports.Where(passport => requiredFields.All(passport.Contains)).ToArray();
-            
-            Console.WriteLine($"First solution: {passports.Length}");
+            _passports = _passports.Where(passport => requiredFields.All(passport.Contains)).ToArray();
+        }
 
-            // Second part
+        public override object SolveFirst()
+        {
+            return _passports.Length;
+        }
+
+        public override object SolveSecond()
+        {
             int validPassports = 0;
-            foreach (string passport in passports)
+            foreach (string passport in _passports)
             {
                 // Fragments (key:value) are separated by a single whitespace or newline character
                 string[] fragments = passport.Replace(Environment.NewLine, " ").Split(" ");
@@ -47,10 +51,10 @@ namespace Whiskee.AdventOfCode2020.CSharp
                 }
             }
 
-            Console.WriteLine($"Second solution: {validPassports}");
+            return validPassports;
         }
 
-        private bool ValidatePair(string key, string value)
+        private static bool ValidatePair(string key, string value)
         {
             switch (key)
             {

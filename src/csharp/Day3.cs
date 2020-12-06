@@ -1,25 +1,26 @@
 using System;
 using System.Drawing;
-using System.IO;
 
-namespace Whiskee.AdventOfCode2020.CSharp
+namespace Whiskee.AdventOfCode2020
 {
     public class Day3 : Day
     {
         private string[] _map;
         private Size _mapSize;
         
-        public override void Run()
+        public override void ReadInput(string content)
         {
-            _map = File.ReadAllLines(@"data/day3.txt");
+            _map = content.Split(Environment.NewLine);
             _mapSize = new Size(_map[0].Length, _map.Length);
+        }
 
-            // First part
-            int treesEncountered = CheckSlope(3, 1);
-            
-            Console.WriteLine($"First solution: {treesEncountered}");
-            
-            // Second part
+        public override object SolveFirst()
+        {
+            return CheckSlope(3, 1);
+        }
+
+        public override object SolveSecond()
+        {
             long treesProduct = 1;
             treesProduct *= CheckSlope(1, 1);
             treesProduct *= CheckSlope(3, 1);
@@ -27,7 +28,7 @@ namespace Whiskee.AdventOfCode2020.CSharp
             treesProduct *= CheckSlope(7, 1);
             treesProduct *= CheckSlope(1, 2);
             
-            Console.WriteLine($"Second solution: {treesProduct}");
+            return treesProduct;
         }
 
         private int CheckSlope(int dx, int dy)

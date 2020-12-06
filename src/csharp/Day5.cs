@@ -1,19 +1,23 @@
 using System;
-using System.IO;
 
-namespace Whiskee.AdventOfCode2020.CSharp
+namespace Whiskee.AdventOfCode2020
 {
     public class Day5 : Day
     {
-        private const int Seats = 128 * 8;
+        private string[] _seats;
+        private readonly bool[] _occupied = new bool[Seats];
+        private int _highestId = 0;
         
-        public override void Run()
+        private const int Seats = 128 * 8;
+
+        public override void ReadInput(string content)
         {
-            string[] seats = File.ReadAllLines(@"data/day5.txt");
-            bool[] occupied = new bool[Seats];
-            int highestId = 0;
-            
-            foreach (string seat in seats)
+            _seats = content.Split(Environment.NewLine);
+        }
+
+        public override object SolveFirst()
+        {
+            foreach (string seat in _seats)
             {
                 int rows = 128;
                 int columns = 8;
@@ -41,25 +45,28 @@ namespace Whiskee.AdventOfCode2020.CSharp
                     }
 
                     int id = rowOffset * 8 + columnOffset;
-                    highestId = Math.Max(highestId, id);
-                    occupied[id] = true;
+                    _highestId = Math.Max(_highestId, id);
+                    _occupied[id] = true;
                 }
             }
 
-            Console.WriteLine($"First solution: {highestId}");
-            
-            // Second part
+            return _highestId;
+        }
+
+        public override object SolveSecond()
+        {
             // We aren't sitting at the very back (row 127, IDs starting from 127 * 8), therefore:
             const int highestCheck = Seats - 8 - 1;
             
             for (int id = highestCheck; id >= 0; id--)
             {
-                if (!occupied[id] && occupied[id+1])
+                if (!_occupied[id] && _occupied[id+1])
                 {
-                    Console.WriteLine($"Second solution: {id}");
-                    break;
+                    return id;
                 }
             }
+
+            return null;
         }
     }
 }
