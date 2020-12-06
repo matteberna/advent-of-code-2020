@@ -46,6 +46,7 @@ namespace Whiskee.AdventOfCode2020
             Days[3] = new Day3();
             Days[4] = new Day4();
             Days[5] = new Day5();
+            Days[6] = new Day6();
         }
     }
 
