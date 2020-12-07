@@ -10,6 +10,17 @@ namespace Whiskee.AdventOfCode2020
         private static void Main()
         {
             AllocateDays();
+            
+            // Immediately print the answers for the current day
+            for (int i = 25; i >= 1; i--)
+            {
+                if (Days[i] != null)
+                {
+                    Console.WriteLine(Environment.NewLine + $"AdventOfCode2020> solve {i}");
+                    WriteSolutions(i);
+                    break;
+                }
+            }
 
             while (true)
             {
@@ -23,15 +34,20 @@ namespace Whiskee.AdventOfCode2020
                     case "solve":
                         if (int.TryParse(command[1], out int number) && number is >= 1 and <= 25)
                         {
-                            string input = File.ReadAllText($"data/day{number}.txt");
-                            Days[number].ReadInput(input);
-                            Console.WriteLine($"First part: {Days[number].SolveFirst()}");
-                            Console.WriteLine($"Second part: {Days[number].SolveSecond()}");
+                            WriteSolutions(number);
                         }
 
                         break;
                 }
             }
+        }
+
+        private static void WriteSolutions(int number)
+        {
+            string input = File.ReadAllText($"data/day{number}.txt");
+            Days[number].ReadInput(input);
+            Console.WriteLine($"First answer: {Days[number].SolveFirst()}");
+            Console.WriteLine($"Second answer: {Days[number].SolveSecond()}");
         }
 
         private static void AllocateDays()
