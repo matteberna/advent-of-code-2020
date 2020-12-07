@@ -4,59 +4,59 @@ namespace Whiskee.AdventOfCode2020
 {
     public class Day7 : Day
     {
-        private string[] _rulesData;
-        private Dictionary<string, List<BagRule>> _rules;
+        private Dictionary<string, List<Rule>> _rules;
+        
+        private const string MyBagColor = "shiny gold";
 
         public override void ReadInput(string content)
         {
-            _rulesData = content.SplitLines();
-            _rules = new Dictionary<string, List<BagRule>>();
-            foreach (string data in _rulesData)
+            _rules = new Dictionary<string, List<Rule>>();
+            foreach (string data in content.SplitLines())
             {
-                CreateRule(data);
+                DefineRule(data);
             }
         }
 
-        private void CreateRule(string data)
+        // Format: <color color> bags contain <number> <color color>, <number> <color color>, ...
+        private void DefineRule(string str)
         {
-            string[] fragments = data.SplitAlpha();
-            int words = fragments.Length;
-            if (fragments[4] != "no")
+            string[] words = str.SplitAlpha();
+            if (words[4] != "no")
             {
-                for (int i = 4; i < words; i += 4)
+                // Lines can contain any number of consecutive requirements
+                for (int i = 4; i < words.Length; i += 4)
                 {
-                    var rule = new BagRule
+                    var rule = new Rule
                     {
-                        Color = fragments[0] + " " + fragments[1],
-                        ContentQuantity = int.Parse(fragments[i]),
-                        ContentColor = fragments[i + 1] + " " + fragments[i + 2]
+                        BagColor = words[0] + " " + words[1],
+                        RequiredColor = words[i + 1] + " " + words[i + 2],
+                        RequiredQuantity = int.Parse(words[i])
                     };
-                    if (!_rules.ContainsKey(rule.Color))
+                    if (!_rules.ContainsKey(rule.BagColor))
                     {
-                        _rules.Add(rule.Color, new List<BagRule>());
+                        _rules.Add(rule.BagColor, new List<Rule>());
                     }
-                    _rules[rule.Color].Add(rule);
+                    _rules[rule.BagColor].Add(rule);
                 }
             }
         }
 
         public override object SolveFirst()
         {
-            int match = 0;
-            foreach (var rule in _rules)
+            int matches = 0;
+            foreach ((string key, _) in _rules)
             {
-                if (rule.Key != "shiny gold")
+                /* Let's just assume, for the sake of sanity, that bags can't have circular requirements
+                 and that we aren't carrying with us an infinite-depth matryoshka of shiny gold bags */
+                if (CheckRequirement(key, MyBagColor))
                 {
-                    if (SearchFor("shiny gold", rule.Key))
-                    {
-                        match++;
-                    }
+                    matches++;
                 }
             }
-            return match;
+            return matches;
         }
 
-        private bool SearchFor(string wantedColor, string bagColor)
+        private bool CheckRequirement(string bagColor, string requirement)
         {
             if (!_rules.ContainsKey(bagColor))
             {
@@ -64,7 +64,7 @@ namespace Whiskee.AdventOfCode2020
             }
             foreach (var rule in _rules[bagColor])
             {
-                if (rule.ContentColor == wantedColor || SearchFor(wantedColor, rule.ContentColor))
+                if (rule.RequiredColor == requirement || CheckRequirement(rule.RequiredColor, requirement))
                 {
                     return true;
                 }
@@ -75,30 +75,29 @@ namespace Whiskee.AdventOfCode2020
 
         public override object SolveSecond()
         {
-            return CountRequirements("shiny gold");
+            return CountRequirements(MyBagColor);
         }
 
         private int CountRequirements(string color)
         {
+            int count = 0;
             if (!_rules.ContainsKey(color))
             {
                 return 0;
             }
-
-            int count = 0;
             foreach (var rule in _rules[color])
             {
-                count += rule.ContentQuantity * (1 + CountRequirements(rule.ContentColor));
+                count += rule.RequiredQuantity * (1 + CountRequirements(rule.RequiredColor));
             }
             
             return count;
         }
 
-        private class BagRule
+        private class Rule
         {
-            public string Color;
-            public string ContentColor;
-            public int ContentQuantity;
+            public string BagColor;
+            public string RequiredColor;
+            public int RequiredQuantity;
         }
     }
 }
