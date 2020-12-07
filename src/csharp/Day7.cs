@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Whiskee.AdventOfCode2020
 {
@@ -76,7 +75,23 @@ namespace Whiskee.AdventOfCode2020
 
         public override object SolveSecond()
         {
-            return 0;
+            return CountRequirements("shiny gold");
+        }
+
+        private int CountRequirements(string color)
+        {
+            if (!_rules.ContainsKey(color))
+            {
+                return 0;
+            }
+
+            int count = 0;
+            foreach (var rule in _rules[color])
+            {
+                count += rule.ContentQuantity * (1 + CountRequirements(rule.ContentColor));
+            }
+            
+            return count;
         }
 
         private class BagRule
