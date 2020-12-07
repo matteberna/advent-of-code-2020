@@ -13,30 +13,23 @@ namespace Whiskee.AdventOfCode2020
 
             while (true)
             {
-                try
+                Console.Write(Environment.NewLine + "AdventOfCode2020> ");
+                string[] command = Console.ReadLine()?.Split(" ");
+
+                switch (command?[0])
                 {
-                    Console.Write(Environment.NewLine + "AdventOfCode2020> ");
-                    string[] command = Console.ReadLine()?.Split(" ");
-                    
-                    switch (command?[0])
-                    {
-                        case "exit":
-                            return;
-                        case "solve":
-                            if (int.TryParse(command[1], out int number) && number is >= 1 and <= 25)
-                            {
-                                string input = File.ReadAllText($"data/day{number}.txt");
-                                Days[number].ReadInput(input);
-                                Console.WriteLine($"First part: {Days[number].SolveFirst()}");
-                                Console.WriteLine($"Second part: {Days[number].SolveSecond()}");
-                            }
-                            break;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.Write(e.GetBaseException().Message);
-                    break;
+                    case "exit":
+                        return;
+                    case "solve":
+                        if (int.TryParse(command[1], out int number) && number is >= 1 and <= 25)
+                        {
+                            string input = File.ReadAllText($"data/day{number}.txt");
+                            Days[number].ReadInput(input);
+                            Console.WriteLine($"First part: {Days[number].SolveFirst()}");
+                            Console.WriteLine($"Second part: {Days[number].SolveSecond()}");
+                        }
+
+                        break;
                 }
             }
         }
@@ -50,6 +43,7 @@ namespace Whiskee.AdventOfCode2020
             Days[4] = new Day4();
             Days[5] = new Day5();
             Days[6] = new Day6();
+            Days[7] = new Day7();
         }
     }
 
