@@ -2,69 +2,92 @@ namespace Whiskee.AdventOfCode2020
 {
     public class Day8 : Day
     {
-        private string[] _instructions;
+        private Instruction[] _instructions;
+        
+        // Registers are re-used freely
         private bool[] _visited;
         private int _accumulator;
 
         public override void ReadInput(string content)
         {
-            _instructions = content.SplitLines();
+            string[] instructions = content.SplitLines();
+            _instructions = new Instruction[instructions.Length];
             _visited = new bool[_instructions.Length];
+            for (int i = 0; i < instructions.Length; i++)
+            {
+                _instructions[i] = new Instruction(instructions[i]);
+            }
+        }
+
+        private class Instruction
+        {
+            public readonly string Operation;
+            public readonly int Argument;
+
+            public Instruction(string instruction)
+            {
+                Operation = instruction.Substring(0, 3);
+                Argument = int.Parse(instruction.Substring(5)) * (instruction[4] == '-'? -1 : 1);
+            }
         }
 
         public override object SolveFirst()
         {
             for (int i = 0; i < _instructions.Length; i++)
             {
-                string instruction = _instructions[i];
-                string operation = instruction.Substring(0, 3);
-                int argument = int.Parse(instruction.Substring(5)) * (instruction[4] == '-'? -1 : 1);
+                var ins = _instructions[i];
+                
                 if (_visited[i])
                 {
-                    return _accumulator;
+                    return _accumulator; // infinite loop!
                 }
                 _visited[i] = true;
-                switch (operation)
+                
+                switch (ins.Operation)
                 {
                     case "acc":
-                        _accumulator += argument;
+                        _accumulator += ins.Argument;
                         break;
                     case "jmp":
-                        i += argument;
+                        i += ins.Argument;
                         i -= 1;
                         break;
                 }
             }
 
-            return 0;
+            return null;
         }
 
         public override object SolveSecond()
         {
             for (int i = 0; i < _instructions.Length; i++)
             {
-                int? accumulator = TestBuild(i);
-                if (accumulator != null)
+                // we're only attempting to switch NOP and JMP instructions
+                if (_instructions[i].Operation.StartsWith("acc"))
                 {
-                    return accumulator;
+                    continue;
+                }
+                
+                // Reset the registers
+                _accumulator = 0;
+                _visited = new bool[_instructions.Length];
+                
+                if (TestVariant(i))
+                {
+                    return _accumulator;
                 }
             }
+            
             return null;
         }
 
-        private int? TestBuild(int lineChanged)
+        private bool TestVariant(int lineChanged)
         {
-            _accumulator = 0;
-            _visited = new bool[_instructions.Length];
-            if (_instructions[lineChanged].StartsWith("acc"))
-            {
-                return null;
-            }
-            
             for (int i = 0; i < _instructions.Length; i++)
             {
-                string instruction = _instructions[i];
-                string operation = instruction.Substring(0, 3);
+                var orig = _instructions[i];
+                string operation = orig.Operation;
+                
                 if (i == lineChanged)
                 {
                     operation = operation switch
@@ -74,25 +97,26 @@ namespace Whiskee.AdventOfCode2020
                         _ => operation
                     };
                 }
-                int argument = int.Parse(instruction.Substring(5)) * (instruction[4] == '-'? -1 : 1);
+                
                 if (_visited[i])
                 {
-                    return null;
+                    return false; // infinite loop!
                 }
                 _visited[i] = true;
+                
                 switch (operation)
                 {
                     case "acc":
-                        _accumulator += argument;
+                        _accumulator += orig.Argument;
                         break;
                     case "jmp":
-                        i += argument;
+                        i += orig.Argument;
                         i -= 1;
                         break;
                 }
             }
 
-            return _accumulator;
+            return true;
         }
     }
 }
