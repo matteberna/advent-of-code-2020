@@ -1,8 +1,11 @@
+using System;
+
 namespace Whiskee.AdventOfCode2020
 {
     public class Day9 : Day
     {
         private long[] _numbers;
+        private long _vulnerability = 0;
         
         public override void ReadInput(string content)
         {
@@ -27,11 +30,13 @@ namespace Whiskee.AdventOfCode2020
                 {
                     for (int b = a + 1; b < check; b++)
                     {
-                        // "The two numbers will have different values, and there might be more than one such pair."
+                        // The two numbers must have different values
                         if (_numbers[a] != _numbers[b] && _numbers[a] + _numbers[b] == _numbers[check])
                         {
                             valid = true;
                             check++;
+                            // Save the vulnerability for part 2:
+                            _vulnerability = _numbers[check];
                             // Skip unnecessary loops
                             goto again;
                         }
@@ -44,6 +49,34 @@ namespace Whiskee.AdventOfCode2020
 
         public override object SolveSecond()
         {
+            for (int start = 0; start < _numbers.Length - 1; start++)
+            {
+                long sum = _numbers[start];
+                for (int b = start + 1; b < _numbers.Length; b++)
+                {
+                    sum += _numbers[b];
+                    // Compatible range found?
+                    if (sum == _vulnerability)
+                    {
+                        long min = long.MaxValue;
+                        long max = long.MinValue;
+                        for (int i = start; i <= b; i++)
+                        {
+                            min = Math.Min(min, _numbers[i]);
+                            max = Math.Max(max, _numbers[i]);
+                        }
+
+                        return min + max;
+                    }
+
+                    if (sum > _vulnerability)
+                    {
+                        // Skip unnecessary loops
+                        break;
+                    }
+                }
+            }
+
             return 0;
         }
     }
