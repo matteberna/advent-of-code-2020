@@ -22,27 +22,28 @@ namespace Whiskee.AdventOfCode2020
 
         public override object SolveFirst()
         {
-            int last = 0;
-            int single = 0;
-            int triple = 0;
-            for (int i = 0; i < _adapters.Length; i++)
+            int prev = 0;
+            int inc1 = 0;
+            int inc3 = 0;
+            
+            foreach (int jolt in _adapters)
             {
-                int current = _adapters[i];
-                if (current == last + 1)
+                if (jolt == prev + 1)
                 {
-                    single++;
+                    inc1++;
                 }
-                else if (current == last + 3)
+                else if (jolt == prev + 3)
                 {
-                    triple++;
+                    inc3++;
                 }
 
-                last = current;
+                prev = jolt;
             }
 
-            triple++; // the device itself
+            // Include the device itself
+            inc3++;
 
-            return single * triple;
+            return inc1 * inc3;
         }
 
         public override object SolveSecond()
