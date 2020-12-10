@@ -46,8 +46,9 @@ namespace Whiskee.AdventOfCode2020
         {
             string input = File.ReadAllText($"data/day{number:D2}.txt");
             Days[number].ReadInput(input);
-            Console.WriteLine($"First answer: {Days[number].SolveFirst()}");
-            Console.WriteLine($"Second answer: {Days[number].SolveSecond()}");
+            Console.WriteLine($"(https://adventofcode.com/2020/day/{number})");
+            Console.WriteLine($"First solution: {Days[number].SolveFirst()}");
+            Console.WriteLine($"Second solution: {Days[number].SolveSecond()}");
         }
 
         private static void AllocateDays()
