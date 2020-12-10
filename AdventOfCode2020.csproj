@@ -7,31 +7,31 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Update="data\day1.txt">
+      <None Update="data\day01.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="data\day2.txt">
+      <None Update="data\day02.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="data\day5.txt">
+      <None Update="data\day05.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="data\day4.txt">
+      <None Update="data\day04.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="data\day3.txt">
+      <None Update="data\day03.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="data\day6.txt">
+      <None Update="data\day06.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="data\day7.txt">
+      <None Update="data\day07.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="data\day8.txt">
+      <None Update="data\day08.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="data\day9.txt">
+      <None Update="data\day09.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="data\day10.txt">

@@ -44,7 +44,7 @@ namespace Whiskee.AdventOfCode2020
 
         private static void WriteSolutions(int number)
         {
-            string input = File.ReadAllText($"data/day{number}.txt");
+            string input = File.ReadAllText($"data/day{number:D2}.txt");
             Days[number].ReadInput(input);
             Console.WriteLine($"First answer: {Days[number].SolveFirst()}");
             Console.WriteLine($"Second answer: {Days[number].SolveSecond()}");
