@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Whiskee.AdventOfCode2020
+namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day4 : Day
     {

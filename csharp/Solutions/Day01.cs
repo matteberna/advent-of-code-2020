@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Whiskee.AdventOfCode2020
+namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day1 : Day
     {

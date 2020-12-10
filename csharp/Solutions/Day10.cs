@@ -1,6 +1,6 @@
 using System.Linq;
 
-namespace Whiskee.AdventOfCode2020
+namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day10 : Day
     {

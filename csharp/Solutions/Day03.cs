@@ -1,4 +1,4 @@
-namespace Whiskee.AdventOfCode2020
+namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day3 : Day
     {
