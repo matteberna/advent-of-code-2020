@@ -1,11 +1,8 @@
-using System;
-
 namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day11 : Day
     {
         private static Toolkit.Map _baseMap;
-        private static int _round = 0;
 
         public override void ReadInput(string content)
         {
@@ -14,105 +11,51 @@ namespace Whiskee.AdventOfCode2020.Solutions
 
         public override object SolveFirst()
         {
-            var prev = Toolkit.Map.CreateFrom(_baseMap);
-            var updated = Toolkit.Map.CreateFrom(prev);
-            int changes;
-            
-            while (true)
-            {
-                _round++;
-                changes = 0;
-                
-                for (int x = 0; x < prev.Width; x++)
-                {
-                    for (int y = 0; y < prev.Height; y++)
-                    {
-                        // Is this even a seat?
-                        if (prev.At[x, y] == '.')
-                        {
-                            continue;
-                        }
-                        
-                        // Will someone sit here?
-                        if (prev.At[x, y] == 'L' && IsGoodSeat(prev, x, y, false))
-                        {
-                            updated.At[x, y] = '#';
-                            changes++;
-                        }
-                        
-                        // Will someone leave this seat?
-                        else if (prev.At[x, y] == '#' && IsTooCrowded(prev, x, y, 4, false))
-                        {
-                            updated.At[x, y] = 'L';
-                            changes++;
-                        }
-                    }
-                }
-
-                if (changes > 0)
-                {
-                    prev.CopyFrom(updated);
-                }
-                else
-                {
-                    break;
-                }
-            }
-            
-            return CountSeats(prev);
+            return PredictOccupied(false, 4);
         }
         
         public override object SolveSecond()
         {
-            var prev = Toolkit.Map.CreateFrom(_baseMap);
-            var updated = Toolkit.Map.CreateFrom(prev);
-            int changes;
+            return PredictOccupied(true, 5);
+        }
+
+        private static int PredictOccupied(bool extendSight, int threshold)
+        {
+            var map = Toolkit.Map.CreateFrom(_baseMap);
+            var updated = Toolkit.Map.CreateFrom(map);
+            bool moved = true;
             
-            while (true)
+            while (moved)
             {
-                _round++;
-                changes = 0;
+                moved = false;
                 
-                for (int x = 0; x < prev.Width; x++)
+                for (int x = 0; x < map.Width; x++)
                 {
-                    for (int y = 0; y < prev.Height; y++)
+                    for (int y = 0; y < map.Height; y++)
                     {
-                        // Is this even a seat?
-                        if (prev.At[x, y] == '.')
-                        {
-                            continue;
-                        }
-                        
-                        // Will someone sit here?
-                        if (prev.At[x, y] == 'L' && IsGoodSeat(prev, x, y, true))
+                        // Will someone use this seat?
+                        if (map.At[x, y] == 'L' && CountSeen(map, x, y, extendSight) == 0)
                         {
                             updated.At[x, y] = '#';
-                            changes++;
+                            moved = true;
                         }
                         
                         // Will someone leave this seat?
-                        else if (prev.At[x, y] == '#' && IsTooCrowded(prev, x, y, 5, true))
+                        else if (map.At[x, y] == '#' && CountSeen(map, x, y, extendSight) >= threshold)
                         {
                             updated.At[x, y] = 'L';
-                            changes++;
+                            moved = true;
                         }
                     }
                 }
-
-                if (changes > 0)
-                {
-                    prev.CopyFrom(updated);
-                }
-                else
-                {
-                    break;
-                }
+                
+                map.CopyFrom(updated);
             }
             
-            return CountSeats(prev);
+            return CountOccupied(map);
         }
 
-        private int CountSeats(Toolkit.Map map)
+        private static int CountOccupied(Toolkit.Map map)
         {
             int count = 0;
             for (int x = 0; x < map.Width; x++)
@@ -129,101 +72,48 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return count;
         }
 
-        private static bool IsGoodSeat(Toolkit.Map map, int x, int y, bool extendSight)
+        private static char? LookAtDirection(Toolkit.Map map, int xPos, int yPos, int xDirection, int yDirection, int distanceMax)
         {
-            // Simple version: just check which neighboring seats are occupied
-            if (!extendSight)
-            {
-                bool good = true;
-                for (int cx = x - 1; cx <= x + 1; cx++)
-                {
-                    for (int cy = y - 1; cy <= y + 1; cy++)
-                    {
-                        if (cx >= 0 && cx < map.Width && cy >= 0 && cy < map.Height && map.At[cx, cy] == '#')
-                        {
-                            good = false;
-                        }
-                    }
-                }
-
-                return good;
-            }
-            // Sight mode: check the diagonals
-            else
-            {
-                return CheckFirstCharacterSeen(map, -1, -1, x, y) is not '#'
-                       && CheckFirstCharacterSeen(map, -1, 0, x, y) is not '#'
-                       && CheckFirstCharacterSeen(map, -1, 1, x, y) is not '#'
-                       && CheckFirstCharacterSeen(map, 0, -1, x, y) is not '#'
-                       && CheckFirstCharacterSeen(map, 0, 1, x, y) is not '#'
-                       && CheckFirstCharacterSeen(map, 1, -1, x, y) is not '#'
-                       && CheckFirstCharacterSeen(map, 1, 0, x, y) is not '#'
-                       && CheckFirstCharacterSeen(map, 1, 1, x, y) is not '#';
-            }
-        }
-
-        private static char? CheckFirstCharacterSeen(Toolkit.Map map, int dirX, int dirY, int x, int y)
-        {
-            int ext = 0;
+            int dist = 0;
                 
-            while (true)
+            while (dist < distanceMax)
             {
-                ext++;
-                int cx = x + dirX * ext;
-                int cy = y + dirY * ext;
+                dist++;
+                int xCheck = xPos + dist * xDirection;
+                int yCheck = yPos + dist * yDirection;
                 
-                if (cx < 0 || cx >= map.Width || cy < 0 || cy >= map.Height)
+                if (xCheck < 0 || xCheck >= map.Width || yCheck < 0 || yCheck >= map.Height)
                 {
                     return null;
                 }
 
-                if (map.At[cx, cy] == '.')
+                if (map.At[xCheck, yCheck] != '.')
                 {
-                    continue;
+                    return map.At[xCheck, yCheck];
                 }
 
-                return map.At[cx, cy];
             }
+
+            return '.';
         }
-        
-        private static bool IsTooCrowded(Toolkit.Map map, int x, int y, int threshold, bool extendSight)
+
+        private static int CountSeen(Toolkit.Map map, int x, int y, bool extendSight)
         {
-            // Simple version: just check which neighboring seats are occupied
-            if (!extendSight)
+            int seen = 0;
+            int distanceMax = extendSight ? int.MaxValue : 1;
+
+            for (int h = -1; h <= 1; h++)
             {
-                int crowd = 0;
-                for (int cx = x - 1; cx <= x + 1; cx++)
+                for (int v = -1; v <= 1; v++)
                 {
-                    for (int cy = y - 1; cy <= y + 1; cy++)
+                    if ((h != 0 || v != 0) && LookAtDirection(map, x, y, h, v, distanceMax) == '#')
                     {
-                        // Is this neighboring seat occupied?
-                        if (cx >= 0 && cx < map.Width && cy >= 0 && cy < map.Height && map.At[cx, cy] == '#')
-                        {
-                            crowd++;
-                        }
+                        seen++;
                     }
                 }
-                return crowd >= threshold + 1;
-            }
-            // Sight mode: check the diagonals
-            else
-            {
-                int crowd = 0;
-                if (CheckFirstCharacterSeen(map, -1, -1, x, y) == '#') crowd++;
-                if (CheckFirstCharacterSeen(map, -1, 0, x, y) == '#') crowd++;
-                if (CheckFirstCharacterSeen(map, -1, 1, x, y) == '#') crowd++;
-                if (CheckFirstCharacterSeen(map, 0, -1, x, y) == '#') crowd++;
-                if (CheckFirstCharacterSeen(map, 0, 1, x, y) == '#') crowd++;
-                if (CheckFirstCharacterSeen(map, 1, -1, x, y) == '#') crowd++;
-                if (CheckFirstCharacterSeen(map, 1, 0, x, y) == '#') crowd++;
-                if (CheckFirstCharacterSeen(map, 1, 1, x, y) == '#') crowd++;
-                
-                return crowd >= threshold;
             }
 
-            // Including the seat we're checking
-            
+            return seen;
         }
-
     }
 }
