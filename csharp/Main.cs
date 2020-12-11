@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Whiskee.AdventOfCode2020.Solutions;
 
 namespace Whiskee.AdventOfCode2020
 {
@@ -64,6 +65,7 @@ namespace Whiskee.AdventOfCode2020
             Days[8] = new Day8();
             Days[9] = new Day9();
             Days[10] = new Day10();
+            Days[11] = new Day11();
         }
     }
 

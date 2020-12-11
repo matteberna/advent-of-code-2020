@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Whiskee.AdventOfCode2020
@@ -40,15 +41,41 @@ namespace Whiskee.AdventOfCode2020
             public char[,] At;
             public int Width;
             public int Height;
+
+            public Map(int width, int height)
+            {
+                Width = width;
+                Height = height;
+                At = new char[width, height];
+            }
+
+            public static Map CreateFrom(Map orig)
+            {
+                var map = new Map(orig.Width, orig.Height);
+                map.CopyFrom(orig);
+                return map;
+            }
+
+            public void CopyFrom(Map orig)
+            {
+                for (int x = 0; x < orig.Width; x++)
+                {
+                    for (int y = 0; y < orig.Height; y++)
+                    {
+                        At[x, y] = orig.At[x, y];
+                    }
+                }
+            }
+            
         }
+        
         public static Map ToMap(this string str)
         {
-            var map = new Map();
-            
             string[] lines = str.SplitLines();
-            map.Width = lines.Max(l => l.Length);
-            map.Height = lines.Length;
-            map.At = new char[map.Width, map.Height];
+            int width = lines.Max(l => l.Length);
+            int height = lines.Length;
+            
+            var map = new Map(width, height);
 
             for (int x = 0; x < map.Width; x++)
             {
