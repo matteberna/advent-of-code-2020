@@ -1,100 +1,69 @@
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day13 : Day
     {
-        private static int _departAt;
-        private static int[] _busesFirst;
-        private static int?[] _buses;
+        private static int _myArrival;
+        private static int?[] _schedule;
 
         public override void ReadInput(string content)
         {
             string[] data = content.SplitLines();
-            string[] busesDataFirst = data[1].Split(",").Where(b => b != "x").ToArray();
-            string[] busesData = data[1].Split(",").ToArray();
-            _departAt = int.Parse(data[0]);
-            _busesFirst = new int[busesDataFirst.Length];
-            _buses = new int?[busesData.Length];
-            for (int i = 0; i < busesDataFirst.Length; i++)
+            string[] scheduleData = data[1].Split(",").ToArray();
+            
+            _myArrival = int.Parse(data[0]);
+            _schedule = new int?[scheduleData.Length];
+            for (int i = 0; i < scheduleData.Length; i++)
             {
-                _busesFirst[i] = int.Parse(busesDataFirst[i]);
-            }
-            for (int i = 0; i < busesData.Length; i++)
-            {
-                _buses[i] = busesData[i] == "x" ? null : int.Parse(busesData[i]);
+                _schedule[i] = scheduleData[i] == "x" ? null : int.Parse(scheduleData[i]);
             }
         }
 
         public override object SolveFirst()
         {
-            int earliestBus = 0;
-            int earliestArrive = int.MaxValue;
-            int earliestWait = 0;
-            
-            for (int i = 0; i < _busesFirst.Length; i++)
+            (int id, int tDeparture, int wait) earliest = (0, int.MaxValue, 0);
+
+            // ReSharper disable once PossibleInvalidCastExceptionInForeachLoop
+            foreach (int id in _schedule.Where(b => b != null).ToArray())
             {
-                int early = _departAt % _busesFirst[i];
-                int wait = _busesFirst[i] - early;
-                int arrive = _departAt + wait;
-                if (arrive <= earliestArrive)
+                // Buses' IDs are equal to their travel times
+                int wait = id - _myArrival % id;
+                int tDeparture = _myArrival + wait;
+                
+                if (tDeparture < earliest.tDeparture)
                 {
-                    earliestBus = _busesFirst[i];
-                    earliestArrive = arrive;
-                    earliestWait = wait;
+                    earliest = (id, tDeparture, wait);
                 }
             }
 
-            return earliestBus * earliestWait;
+            return earliest.id * earliest.wait;
         }
 
         public override object SolveSecond()
         {
-            var pairs = new List<(int index, int id)>();
-            int index = -1;
-            foreach (int? bus in _buses)
+            long t = (int)_schedule.First(s => s != null)!;
+            long dt = 1;
+            
+            for (int i = 0; i < _schedule.Length; i++)
             {
-                index++;
-                if (bus != null)
+                // Wildcard slots marked 'x' are irrelevant to this approach, just update the index
+                if (_schedule[i] != null)
                 {
-                    pairs.Add((index, (int) bus));
-                }
-            }
-
-            long t = 0;
-            long attempt = 0;
-            long step;
-
-            repeat:
-            attempt++;
-            t = pairs[0].id * (attempt - 1);
-            step = 0;
-            foreach (var bus in pairs)
-            {
-                while (true)
-                {
-                    long running = t % bus.id;
-                    long cycle = bus.id;
-                    long missing = cycle - running;
-                    if (missing == cycle) missing = 0;
-                    long offset = bus.index; // multiple rounds
-                    if (missing == offset % cycle)
+                    int id = (int) _schedule[i]; // alias
+                    while (true)
                     {
-                        step = step == 0 ? bus.id : step * bus.id;
-                        break;
-                    }
-                    else
-                    {
-                        if (step % cycle == 0)
+                        // Knowing that it started moving at t = 0, will this bus arrive exactly after the desired offset?
+                        if ((t + i) % id == 0)
                         {
-                            goto repeat;
+                            // IDs are, very conveniently, prime numbers - so this pattern will repeat every:
+                            dt *= id;
+                            break;
                         }
                         else
                         {
-                            t += step;
+                            t += dt;
                         }
-
                     }
                 }
             }
