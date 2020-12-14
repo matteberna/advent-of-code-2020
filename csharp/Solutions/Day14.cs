@@ -8,15 +8,27 @@ namespace Whiskee.AdventOfCode2020.Solutions
     {
         private static string[] _data;
         private static Dictionary<ulong, ulong> _memory;
+
+        private const int Bits = 36;
         
         public override void ReadInput(string content)
         {
             _data = content.SplitLines();
-            _memory = new Dictionary<ulong, ulong>();
         }
 
         public override object SolveFirst()
         {
+            return InspectMemory(1);
+        }
+        
+        public override object SolveSecond()
+        {
+            return InspectMemory(2);
+        }
+
+        private static ulong InspectMemory(int version)
+        {
+            _memory = new Dictionary<ulong, ulong>();
             string mask = null;
             
             foreach (string line in _data)
@@ -31,163 +43,93 @@ namespace Whiskee.AdventOfCode2020.Solutions
                 {
                     // ReSharper disable StringIndexOfIsCultureSpecific.1
                     ulong address = ulong.Parse(line.Substring(4, line.IndexOf("]") - 4));
-                    ulong value = ApplyMaskV1(mask, int.Parse(line.Substring(line.IndexOf("=") + 2)));
-                    if (_memory.ContainsKey(address))
+                    ulong value;
+                    switch (version)
                     {
-                        _memory[address] = value;
-                    }
-                    else
-                    {
-                        _memory.Add(address, value);
+                        // Version 1: Mask applied to the value, single memory update
+                        case 1:
+                            value = ApplyMaskV1(mask, int.Parse(line.Substring(line.IndexOf("=") + 2)));
+                            _memory[address] = value;
+                            break;
+                        // Version 2: Mask applied to the address, multiple memory updates
+                        case 2:
+                            value = ulong.Parse(line.Substring(line.IndexOf("=") + 2));
+                            foreach (ulong add in ApplyMaskV2(mask, (int)address))
+                            {
+                                _memory[add] = value;
+                            }
+                            break;
                     }
                 }
             }
             
-            ulong count = 0;
-            foreach (var m in _memory)
-            {
-                count += m.Value;
-            }
-
-            return count;
+            return _memory.Aggregate<KeyValuePair<ulong, ulong>, ulong>(0, (current, m) => current + m.Value);
         }
         
         private static ulong ApplyMaskV1(string mask, int number)
         {
-            char[] binary = Convert.ToString(number, 2).PadLeft(36, '0').ToCharArray();
+            char[] binary = Convert.ToString(number, 2).PadLeft(Bits, '0').ToCharArray();
             for (int i = 0; i < mask.Length; i++)
             {
-                if (mask[i] == '0')
+                binary[i] = mask[i] switch
                 {
-                    binary[i] = '0';
-                }
-                else if (mask[i] == '1')
-                {
-                    binary[i] = '1';
-                }
+                    '0' => '0',
+                    '1' => '1',
+                    _ => binary[i]
+                };
             }
 
-            try
-            {
-                string str = new(binary);
-                str = str.PadLeft(36, '0');
-                return Convert.ToUInt64(str, 2);
-            }
-            catch (Exception e)
-            {
-                return 0; // debugging
-            }
+            string str = new(binary);
+            str = str.PadLeft(Bits, '0');
+            return Convert.ToUInt64(str, 2);
         }
 
-        public override object SolveSecond()
+        private static IEnumerable<ulong> ApplyMaskV2(string mask, int address)
         {
-            string mask = null;
-            _memory.Clear(); // from the first part
+            char[] binary = Convert.ToString(address, 2).PadLeft(Bits, '0').ToCharArray();
             
-            foreach (string line in _data)
+            for (int i = 0; i < mask.Length; i++)
             {
-                // Update the current mask
-                if (line.StartsWith("mask"))
+                binary[i] = mask[i] switch
                 {
-                    mask = line.Substring(7);
-                }
-                // Update register values
-                else if (line.StartsWith("mem"))
+                    '1' => '1',
+                    'X' => 'X',
+                    _ => binary[i]
+                };
+            }
+
+            var addresses = SplitAddresses(binary);
+            return addresses
+                .Select(variant => new string(variant))
+                .Select(str => Convert.ToUInt64(str.PadLeft(Bits, '0'), 2)).ToList();
+        }
+
+        private static IEnumerable<char[]> SplitAddresses(char[] family)
+        {
+            var addresses = new List<char[]>();
+            
+            if (!family.Contains('X'))
+            {
+                // Is this an exact address, without floating bits?
+                return new List<char[]> { family };
+            }
+            
+            for (int i = 0; i < family.Length; i++)
+            {
+                if (family[i] == 'X')
                 {
-                    // ReSharper disable StringIndexOfIsCultureSpecific.1
-                    int address = int.Parse(line.Substring(4, line.IndexOf("]") - 4));
-                    var addresses = ApplyMaskV2(mask, address);
+                    char[] copy = new char[Bits];
+                    family.CopyTo(copy, 0);
+                    copy[i] = '0';
+                    addresses.AddRange(SplitAddresses(copy));
                     
-                    ulong value = ulong.Parse(line.Substring(line.IndexOf("=") + 2));
-                    foreach (ulong a in addresses)
-                    {
-                        if (_memory.ContainsKey(a))
-                        {
-                            _memory[a] = value;
-                        }
-                        else
-                        {
-                            _memory.Add(a, value);
-                        }
-                    }
-                }
-            }
-            
-            ulong count = 0;
-            foreach (var m in _memory)
-            {
-                count += m.Value;
-            }
-
-            return count;
-        }
-
-        private IEnumerable<ulong> ApplyMaskV2(string mask, int address)
-        {
-            var list = new List<ulong>();
-            char[] binary = Convert.ToString(address, 2).PadLeft(36, '0').ToCharArray();
-            char[] original = new char[36];
-            Array.Copy(binary, original, 36); // debugging
-            for (int i = 0; i < mask.Length; i++)
-            {
-                if (mask[i] == '1')
-                {
-                    binary[i] = '1';
-                }
-                else if (mask[i] == 'X')
-                {
-                    binary[i] = 'X';
-                }
-            }
-
-            var variants = GetAllVariants(binary);
-            // Console.WriteLine(new string(original));
-            // Console.WriteLine(mask + Environment.NewLine);
-            // foreach (var v in variants)
-            // {
-            //     string ex = new(v);
-            //     Console.WriteLine(ex);
-            // }
-            
-            foreach (char[] v in variants)
-            {
-                try
-                {
-                    string str = new(v);
-                    str = str.PadLeft(36, '0');
-                    list.Add(Convert.ToUInt64(str, 2));
-                }
-                catch (Exception e)
-                {
-                    return null; // debugging
-                }
-            }
-
-            return list;
-        }
-
-        private IEnumerable<char[]> GetAllVariants(char[] binary)
-        {
-            var variants = new List<char[]>();
-            
-            if (!binary.Contains('X'))
-            {
-                return new List<char[]> {binary}; // no changes
-            }
-            
-            for (int i = 0; i < binary.Length; i++)
-            {
-                if (binary[i] == 'X')
-                {
-                    char[] copy1 = new char[36];
-                    Array.Copy(binary, copy1, 36);
-                    copy1[i] = '0';
-                    variants.AddRange(GetAllVariants(copy1));
-                    char[] copy2 = new char[36];
-                    Array.Copy(binary, copy2, 36);
-                    copy2[i] = '1';
-                    variants.AddRange(GetAllVariants(copy2));
-                    return variants; // stop here
+                    // Don't reuse the same array!
+                    copy = new char[Bits];
+                    family.CopyTo(copy, 0);
+                    copy[i] = '1';
+                    addresses.AddRange(SplitAddresses(copy));
+                    
+                    return addresses;
                 }
             }
 
