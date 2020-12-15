@@ -4,8 +4,8 @@ namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day15 : Day
     {
-        private static Dictionary<int, int> _initial;
-        private static int _initialLast = 0;
+        private Dictionary<int, int> _initial;
+        private int _initialLast = 0;
 
         public override void ReadInput(string content)
         {
@@ -28,7 +28,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return SolveFor(30000000);
         }
 
-        private static int? SolveFor(int limit)
+        private int? SolveFor(int limit)
         {
             var dict = new Dictionary<int, int>(_initial);
             int last = _initialLast;

@@ -4,8 +4,8 @@ namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day10 : Day
     {
-        private static int[] _adapters;
-        private static long[] _paths;
+        private int[] _adapters;
+        private long[] _paths;
         
         public override void ReadInput(string content)
         {
@@ -52,7 +52,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return GetPaths(_adapters.Length - 1);
         }
 
-        private static long GetPaths(int index)
+        private long GetPaths(int index)
         {
             // Have we already calculated this?
             if (_paths[index] > 0)

@@ -4,8 +4,8 @@ namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day13 : Day
     {
-        private static int _myArrival;
-        private static int?[] _schedule;
+        private int _myArrival;
+        private int?[] _schedule;
 
         public override void ReadInput(string content)
         {

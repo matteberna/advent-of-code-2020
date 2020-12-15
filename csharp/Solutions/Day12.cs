@@ -6,10 +6,10 @@ namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day12 : Day
     {
-        private static List<(char direction, int value)> _actions;
-        private static char _facing;
-        private static Point _ship;
-        private static Point _waypoint;
+        private List<(char direction, int value)> _actions;
+        private char _facing;
+        private Point _ship;
+        private Point _waypoint;
 
         public override void ReadInput(string content)
         {
@@ -30,7 +30,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return FollowRoute(true);
         }
 
-        private static int FollowRoute(bool usingWaypoint)
+        private int FollowRoute(bool usingWaypoint)
         {
             // Set the initial state
             _ship = new Point(0, 0);
@@ -45,7 +45,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return Math.Abs(_ship.X) + Math.Abs(_ship.Y);
         }
 
-        private static void ExecuteManoeuver(char direction, int value, bool usingWaypoint)
+        private void ExecuteManoeuver(char direction, int value, bool usingWaypoint)
         {
             switch (direction)
             {
@@ -114,7 +114,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             }
         }
 
-        private static char GetNextDirection(char current, int turns, bool clockwise)
+        private char GetNextDirection(char current, int turns, bool clockwise)
         {
             for (int i = 1; i <= turns; i++)
             {

@@ -38,9 +38,10 @@ namespace Whiskee.AdventOfCode2020
         
         public class Map
         {
+            // ReSharper disable once FieldCanBeMadeReadOnly.Global
             public char[,] At;
-            public int Width;
-            public int Height;
+            public readonly int Width;
+            public readonly int Height;
 
             public Map(int width, int height)
             {

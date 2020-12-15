@@ -2,7 +2,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day11 : Day
     {
-        private static Toolkit.Map _baseMap;
+        private Toolkit.Map _baseMap;
 
         public override void ReadInput(string content)
         {
@@ -19,7 +19,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return PredictOccupied(true, 5);
         }
 
-        private static int PredictOccupied(bool extendSight, int threshold)
+        private int PredictOccupied(bool extendSight, int threshold)
         {
             var map = Toolkit.Map.CreateFrom(_baseMap);
             var updated = Toolkit.Map.CreateFrom(map);
@@ -55,7 +55,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return CountOccupied(map);
         }
 
-        private static int CountOccupied(Toolkit.Map map)
+        private int CountOccupied(Toolkit.Map map)
         {
             int count = 0;
             for (int x = 0; x < map.Width; x++)
@@ -72,7 +72,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return count;
         }
 
-        private static char? LookAtDirection(Toolkit.Map map, int xPos, int yPos, int xDirection, int yDirection, int distanceMax)
+        private char? LookAtDirection(Toolkit.Map map, int xPos, int yPos, int xDirection, int yDirection, int distanceMax)
         {
             int dist = 0;
                 
@@ -97,7 +97,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return '.';
         }
 
-        private static int CountSeen(Toolkit.Map map, int x, int y, bool extendSight)
+        private int CountSeen(Toolkit.Map map, int x, int y, bool extendSight)
         {
             int seen = 0;
             int distanceMax = extendSight ? int.MaxValue : 1;

@@ -8,8 +8,8 @@ namespace Whiskee.AdventOfCode2020.Solutions
     {
         private string[] _passports;
         
-        private static readonly Regex HexRegex = new(@"[0-9a-f]{6}");
-        private static readonly string[] EyeColors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
+        private readonly Regex _hexRegex = new(@"[0-9a-f]{6}");
+        private readonly string[] _eyeColors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
         
         public override void ReadInput(string content)
         {
@@ -53,7 +53,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return validPassports;
         }
 
-        private static bool ValidatePair(string key, string value)
+        private bool ValidatePair(string key, string value)
         {
             switch (key)
             {
@@ -83,10 +83,10 @@ namespace Whiskee.AdventOfCode2020.Solutions
                     return false;
                 // Hair color: 6-char hexadecimal
                 case "hcl":
-                    return value[0] == '#' && HexRegex.Matches(value.Substring(1)).Count == 1;
+                    return value[0] == '#' && _hexRegex.Matches(value.Substring(1)).Count == 1;
                 // Eye color: allowed 3-char values only
                 case "ecl":
-                    return value.Length == 3 && EyeColors.Contains(value);
+                    return value.Length == 3 && _eyeColors.Contains(value);
                 // Passport ID: exactly 9 digits
                 case "pid":
                     return value.Length == 9 && int.TryParse(value, out _);

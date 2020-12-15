@@ -6,8 +6,8 @@ namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day14 : Day
     {
-        private static string[] _data;
-        private static Dictionary<ulong, ulong> _memory;
+        private string[] _data;
+        private Dictionary<ulong, ulong> _memory;
 
         private const int Bits = 36;
         
@@ -26,7 +26,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return InspectMemory(2);
         }
 
-        private static ulong InspectMemory(int version)
+        private ulong InspectMemory(int version)
         {
             _memory = new Dictionary<ulong, ulong>();
             string mask = null;
@@ -66,7 +66,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return _memory.Aggregate<KeyValuePair<ulong, ulong>, ulong>(0, (current, m) => current + m.Value);
         }
         
-        private static ulong ApplyMaskV1(string mask, int number)
+        private ulong ApplyMaskV1(string mask, int number)
         {
             char[] binary = Convert.ToString(number, 2).PadLeft(Bits, '0').ToCharArray();
             for (int i = 0; i < mask.Length; i++)
@@ -84,7 +84,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return Convert.ToUInt64(str, 2);
         }
 
-        private static IEnumerable<ulong> ApplyMaskV2(string mask, int address)
+        private IEnumerable<ulong> ApplyMaskV2(string mask, int address)
         {
             char[] binary = Convert.ToString(address, 2).PadLeft(Bits, '0').ToCharArray();
             
@@ -104,7 +104,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
                 .Select(str => Convert.ToUInt64(str.PadLeft(Bits, '0'), 2)).ToList();
         }
 
-        private static IEnumerable<char[]> SplitAddresses(char[] family)
+        private IEnumerable<char[]> SplitAddresses(char[] family)
         {
             var addresses = new List<char[]>();
             
