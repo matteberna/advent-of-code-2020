@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Whiskee.AdventOfCode2020.Solutions
@@ -8,99 +6,92 @@ namespace Whiskee.AdventOfCode2020.Solutions
     public class Day16 : Day
     {
         private static List<Rule> _rules;
-        private List<int[]> _nearby;
         private int[] _myTicket;
-        private List<int[]> _tickets;
-        private static int _numbers;
-        private static int _positionsFound = 0;
+        private List<int[]> _nearbyTickets;
+        private List<int[]> _validTickets;
+        private static int _rulesCount;
+        private static int _rulesInferred = 0;
         
         public override void ReadInput(string content)
         {
             string[] blocks = content.SplitParagraphs();
+            
             string[] rulesData = blocks[0].SplitLines();
-            _myTicket = blocks[1].SplitLines()[1].ExtractIntegers();
-            string[] nearbyData = blocks[2].SplitLines();
-
             _rules = new List<Rule>();
             foreach (string data in rulesData)
             {
-                var bounds = data.ExtractIntegers();
-                var rule = new Rule {MinA = bounds[0], MaxA = bounds[1], MinB = bounds[2], MaxB = bounds[3]};
-                _rules.Add(rule);
-                rule.Departure = data.StartsWith("departure");
-                rule.DebugString = data;
+                int[] bounds = data.ExtractIntegers();
+                _rules.Add(new Rule
+                {
+                    RangeA = (bounds[0], bounds[1]),
+                    RangeB = (bounds[2], bounds[3]),
+                    Departure = data.StartsWith("dep")
+                });
             }
+            _rulesCount = _rules.Count;
             
-            _nearby = new List<int[]>();
+            _myTicket = blocks[1].SplitLines()[1].ExtractIntegers();
+            
+            string[] nearbyData = blocks[2].SplitLines();
+            _nearbyTickets = new List<int[]>();
             foreach (string data in nearbyData)
             {
-                if (data.StartsWith("near")) continue; // first line
-                _nearby.Add(data.ExtractIntegers());
+                // Discard the header line
+                if (!data.StartsWith("near"))
+                {
+                    _nearbyTickets.Add(data.ExtractIntegers());
+                }
+                
             }
         }
 
         private class Rule
         {
-            public string DebugString;
-            public int MinA;
-            public int MaxA;
-            public int MinB;
-            public int MaxB;
+            public (int min, int max) RangeA;
+            public (int min, int max) RangeB;
             public bool Departure;
-            public int? Position;
+            public int? Index;
+            public readonly HashSet<int> ExcludedIndexes = new();
 
-            public HashSet<int> Impossible = new();
-            public HashSet<int> Maybe = new();
-
-            public bool CheckValue(int number)
+            public bool CheckAgainst(int number)
             {
-                return number >= MinA && number <= MaxA || number >= MinB && number <= MaxB;
+                // Is this number included in either of the two ranges?
+                return number >= RangeA.min && number <= RangeA.max 
+                       || number >= RangeB.min && number <= RangeB.max;
             }
 
-            public void DerivePosition()
+            public void InferIndex()
             {
-                if (Position == null)
+                for (int pos = 0; pos < _rulesCount; pos++)
                 {
-                    Maybe.Clear();
-                    for (int pos = 0; pos < _numbers; pos++)
+                    if (!ExcludedIndexes.Contains(pos))
                     {
-                        if (!Impossible.Contains(pos))
-                        {
-                            Maybe.Add(pos);
-                        }
+                        Index = pos;
+                        break;
                     }
-
-                    if (Maybe.Count == 1)
-                    {
-                        Position = Maybe.First();
-                        _rules.ForEach(r => r.Impossible.Add((int)Position));
-                        _positionsFound++;
-                    }
-                    
-                    Console.Write($"RULE {DebugString}:     ");
-                    foreach (int value in Maybe)
-                    {
-                        Console.Write($" {value}");
-                    }
-                    if (Position != null) Console.Write("     [" + Position + "]");
-                    Console.Write(Environment.NewLine);
                 }
+
+                // Update the other rules, they aren't related to this Index
+                _rules.ForEach(r => r.ExcludedIndexes.Add((int) Index!));
+                _rulesInferred++;
             }
         }
 
         public override object SolveFirst()
         {
             int errorRate = 0;
-            _tickets = new List<int[]>();
-            foreach (int[] nearby in _nearby)
+            
+            // First, discard tickets with values that are clearly invalid
+            _validTickets = new List<int[]>();
+            foreach (int[] nearbyTicket in _nearbyTickets)
             {
                 bool validTicket = true;
-                foreach (int value in nearby)
+                foreach (int value in nearbyTicket)
                 {
                     bool validValue = false;
                     foreach (var rule in _rules)
                     {
-                        if (rule.CheckValue(value))
+                        if (rule.CheckAgainst(value))
                         {
                             validValue = true;
                         }
@@ -108,6 +99,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
 
                     if (!validValue)
                     {
+                        // For some obscure reason, we're interested in the sum of all invalid values
                         errorRate += value;
                         validTicket = false;
                     }
@@ -115,57 +107,48 @@ namespace Whiskee.AdventOfCode2020.Solutions
 
                 if (validTicket)
                 {
-                    _tickets.Add(nearby);
+                    _validTickets.Add(nearbyTicket);
                 }
             }
 
-            _tickets.Add(_myTicket);
-            _numbers = _tickets[0].Length;
+            // The _validTickets list will be used in the second part
+            _validTickets.Add(_myTicket);
             
             return errorRate;
         }
 
         public override object SolveSecond()
         {
-            foreach (int[] ticket in _tickets)
+            foreach (int[] ticket in _validTickets)
             {
-                for (int pos = 0; pos < _numbers; pos++)
+                // Populate the ExcludedIndexes list with any impossible associations we're immediately aware of
+                for (int pos = 0; pos < _rulesCount; pos++)
                 {
                     foreach (var rule in _rules)
                     {
-                        if (!rule.Impossible.Contains(pos) && !rule.CheckValue(ticket[pos]))
+                        if (!rule.ExcludedIndexes.Contains(pos) && !rule.CheckAgainst(ticket[pos]))
                         {
-                            rule.Impossible.Add(pos);
+                            rule.ExcludedIndexes.Add(pos);
                         }
                     }
                 }
             }
 
-            while (true)
+            // For every loop, find which rules are only compatible with a single index
+            while (_rulesInferred < _rulesCount)
             {
-                _positionsFound = 0;
-                _rules.ForEach(r => r.Maybe.Clear());
-                _rules.ForEach(r => r.Position = null);
+                _rules.ForEach(r =>
+                {
+                    if (r.Index == null && r.ExcludedIndexes.Count == _rulesCount - 1)
+                    {
+                        r.InferIndex();
+                    }
+                });
+            }
 
-                while (_positionsFound < _numbers)
-                {
-                    _rules.ForEach(r => r.DerivePosition());
-                }
-                
-                if (_positionsFound == _numbers)
-                {
-                    break;
-                }
-            }
-            
-            long product = 1;
-            foreach (var departureRule in _rules.Where(r => r.Departure))
-            {
-                Debug.Assert(departureRule.Position != null, "departureRule.Position != null");
-                product *= _myTicket[(int) departureRule.Position];
-            }
-            
-            return product;
+            // Return the product of all "departure" fields on our ticket
+            return _rules.Where(r => r.Departure)
+                .Aggregate<Rule, long>(1, (prod, rule) => prod * _myTicket[(int) rule.Index!]);
         }
     }
 }
