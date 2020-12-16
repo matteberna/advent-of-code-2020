@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -25,6 +26,19 @@ namespace Whiskee.AdventOfCode2020
         public static string[] SplitAlpha(this string str)
         {
             return AllAlphaRegex.Matches(str).Select(m => m.ToString()).ToArray();
+        }
+        
+        private static readonly Regex AllNumbersRegex = new(@"\d+");
+        public static int[] ExtractIntegers(this string str)
+        {
+            string[] matches = AllNumbersRegex.Matches(str).Select(m => m.ToString()).ToArray();
+            int[] array = new int[matches.Length];
+            for (int i = 0; i < matches.Length; i++)
+            {
+                array[i] = int.Parse(matches[i]);
+            }
+
+            return array;
         }
 
         private static readonly Regex FirstNumberRegex = new(@"\d+");
