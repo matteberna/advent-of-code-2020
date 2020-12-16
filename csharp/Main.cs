@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using Whiskee.AdventOfCode2020.Solutions;
 
@@ -6,6 +7,7 @@ namespace Whiskee.AdventOfCode2020
 {
     internal class Launcher
     {
+        private static readonly Stopwatch Stopwatch = new();
         public static Day[] Days;
         
         private static void Main()
@@ -45,11 +47,23 @@ namespace Whiskee.AdventOfCode2020
 
         private static void WriteSolutions(int number)
         {
-            string input = File.ReadAllText($"data/day{number:D2}.txt");
-            Days[number].ReadInput(input);
-            Console.WriteLine($"(https://adventofcode.com/2020/day/{number})");
-            Console.WriteLine($"First solution: {Days[number].SolveFirst()}");
-            Console.WriteLine($"Second solution: {Days[number].SolveSecond()}");
+            Console.WriteLine($"https://adventofcode.com/2020/day/{number}");
+            Stopwatch.Restart();
+            
+            string filename = $"data/day{number:D2}.txt";
+            Days[number].ReadInput(File.ReadAllText(filename));
+            Console.WriteLine($"{GetTimestamp()} | File /{filename} parsed ({new FileInfo(filename).Length} bytes)");
+            
+            var solution = Days[number].SolveFirst();
+            Console.WriteLine($"{GetTimestamp()} | First solution computed: {solution}");
+            
+            solution = Days[number].SolveSecond();
+            Console.WriteLine($"{GetTimestamp()} | Second solution computed: {solution}");
+        }
+
+        private static string GetTimestamp()
+        {
+            return TimeSpan.FromTicks(Stopwatch.ElapsedTicks).ToString().Substring(3);
         }
 
         private static void AllocateDays()
