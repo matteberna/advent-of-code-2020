@@ -171,6 +171,23 @@ namespace Whiskee.AdventOfCode2020
                     }
                 }
             }
+            
+            public void ForAll(Action<int, int, int, int> action)
+            {
+                for (int x = 0; x < Size.x; x++)
+                {
+                    for (int y = 0; y < Size.y; y++)
+                    {
+                        for (int z = 0; z < Size.z; z++)
+                        {
+                            for (int t = 0; t < Size.t; t++)
+                            {
+                                action(x, y, z, t);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
