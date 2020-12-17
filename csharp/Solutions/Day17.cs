@@ -30,27 +30,15 @@ namespace Whiskee.AdventOfCode2020.Solutions
         private void GenerateMap()
         {
             _active = 0;
-            // The farthest active hypercube can be found at distance <Cycles> from the initial plane
+            // The farthest active hypercube can be found at distance <Cycles> from the initial flat plane
             int xySize = _slice.Width + 2 * Cycles;
             const int ztSize = 1 + 2 * Cycles;
             _map = new Toolkit.Map4D(xySize, xySize, ztSize, ztSize);
             
             // Default the entire map to '.' (inactive)
-            for (int x = 0; x < xySize; x++)
-            {
-                for (int y = 0; y < xySize; y++)
-                {
-                    for (int z = 0; z < ztSize; z++)
-                    {
-                        for (int t = 0; t < ztSize; t++)
-                        {
-                            _map.At[x, y, z, t] = '.';
-                        }
-                    }
-                }
-            }
+            _map.ForAll((x, y, z, t) => _map.At[x, y, z, t] = '.');
             
-            // Overwrite the central origin section where needed
+            // Overwrite the origin section where needed
             for (int x = 0; x < _slice.Width; x++)
             {
                 for (int y = 0; y < _slice.Height; y++)
@@ -74,31 +62,21 @@ namespace Whiskee.AdventOfCode2020.Solutions
                 activating.Clear();
                 deactivating.Clear();
                 
-                for (int x = 0; x < _map.Size.x; x++)
-                {
-                    for (int y = 0; y < _map.Size.y; y++)
+                _map.ForAll((x, y, z, t) => {
+                    // Are we considering the fourth dimension?
+                    if (dimensions == 3 && t != Cycles) return;
+                                
+                    // Apply the activation/deactivation rules
+                    if (_map.At[x, y, z, t] == '#' && CountNeighbors(x, y, z, t) is not (2 or 3))
                     {
-                        for (int z = 0; z < _map.Size.z; z++)
-                        {
-                            for (int t = 0; t < _map.Size.t; t++)
-                            {
-                                // Are we considering the fourth dimension?
-                                if (dimensions == 3 && t != Cycles) continue;
+                        deactivating.Add((x, y, z, t));
                                 
-                                // Apply the activation/deactivation rules
-                                if (_map.At[x, y, z, t] == '#' && CountNeighbors(x, y, z, t) is not (2 or 3))
-                                {
-                                    deactivating.Add((x, y, z, t));
-                                
-                                }
-                                else if (_map.At[x, y, z, t] == '.' && CountNeighbors(x, y, z, t) is 3)
-                                {
-                                    activating.Add((x, y, z, t));
-                                }
-                            }
-                        }
                     }
-                }
+                    else if (_map.At[x, y, z, t] == '.' && CountNeighbors(x, y, z, t) is 3)
+                    {
+                        activating.Add((x, y, z, t));
+                    }
+                });
 
                 foreach ((int x, int y, int z, int t) in activating)
                 {
@@ -116,23 +94,19 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return _active;
         }
 
-        private int CountNeighbors(int x, int y, int z, int t)
+        private int CountNeighbors(int xCenter, int yCenter, int zCenter, int tCenter)
         {
-            int neighbors = _map.At[x, y, z, t] == '#'? -1 : 0;
+            int neighbors = _map.At[xCenter, yCenter, zCenter, tCenter] == '#'? -1 : 0;
             
-            for (int nx = x - 1; nx <= x + 1; nx++)
+            for (int x = (xCenter - 1).Min(0); x <= (xCenter + 1).Max(_map.Size.x - 1); x++)
             {
-                if (nx < 0 || nx >= _map.Size.x) continue;
-                for (int ny = y - 1; ny <= y + 1; ny++)
+                for (int y = (yCenter - 1).Min(0); y <= (yCenter + 1).Max(_map.Size.y - 1); y++)
                 {
-                    if (ny < 0 || ny >= _map.Size.y) continue;
-                    for (int nz = z - 1; nz <= z + 1; nz++)
+                    for (int z = (zCenter - 1).Min(0); z <= (zCenter + 1).Max(_map.Size.z - 1); z++)
                     {
-                        if (nz < 0 || nz >= _map.Size.z) continue;
-                        for (int nt = t - 1; nt <= t + 1; nt++)
+                        for (int t = (tCenter - 1).Min(0); t <= (tCenter + 1).Max(_map.Size.t - 1); t++)
                         {
-                            if (nt < 0 || nt >= _map.Size.t) continue;
-                            if (_map.At[nx, ny, nz, nt] == '#')
+                            if (_map.At[x, y, z, t] == '#')
                             {
                                 neighbors++;
                             }
