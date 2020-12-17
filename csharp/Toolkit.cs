@@ -17,6 +17,17 @@ namespace Whiskee.AdventOfCode2020
         {
             return str.Split(Environment.NewLine + Environment.NewLine);
         }
+        
+        // Shortcuts
+        public static int Min(this int arg, int limit)
+        {
+            return arg > limit ? arg : limit;
+        }
+        
+        public static int Max(this int arg, int limit)
+        {
+            return arg < limit ? arg : limit;
+        }
 
         // Regular Expressions
         
