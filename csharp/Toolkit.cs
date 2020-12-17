@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Whiskee.AdventOfCode2020
@@ -50,28 +48,28 @@ namespace Whiskee.AdventOfCode2020
         
         // Abstracts
         
-        public class Map
+        public class Map2D
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Global
             public char[,] At;
             public readonly int Width;
             public readonly int Height;
 
-            public Map(int width, int height)
+            public Map2D(int width, int height)
             {
                 Width = width;
                 Height = height;
                 At = new char[width, height];
             }
 
-            public static Map CreateFrom(Map orig)
+            public static Map2D CreateFrom(Map2D orig)
             {
-                var map = new Map(orig.Width, orig.Height);
+                var map = new Map2D(orig.Width, orig.Height);
                 map.CopyFrom(orig);
                 return map;
             }
 
-            public void CopyFrom(Map orig)
+            public void CopyFrom(Map2D orig)
             {
                 for (int x = 0; x < orig.Width; x++)
                 {
@@ -84,13 +82,13 @@ namespace Whiskee.AdventOfCode2020
             
         }
         
-        public static Map ToMap(this string str)
+        public static Map2D ToMap2D(this string str)
         {
             string[] lines = str.SplitLines();
             int width = lines.Max(l => l.Length);
             int height = lines.Length;
             
-            var map = new Map(width, height);
+            var map = new Map2D(width, height);
 
             for (int x = 0; x < map.Width; x++)
             {
@@ -101,6 +99,45 @@ namespace Whiskee.AdventOfCode2020
             }
 
             return map;
+        }
+        
+        public class Map3D
+        {
+            // ReSharper disable once FieldCanBeMadeReadOnly.Global
+            public char[,,] At;
+            public readonly int SizeX;
+            public readonly int SizeY;
+            public readonly int SizeZ;
+
+            public Map3D(int sizeX, int sizeY, int sizeZ)
+            {
+                SizeX = sizeX;
+                SizeY = sizeY;
+                SizeZ = sizeZ;
+                At = new char[sizeX, sizeY, sizeZ];
+            }
+
+            public static Map3D CreateFrom(Map3D orig)
+            {
+                var map = new Map3D(orig.SizeX, orig.SizeY, orig.SizeZ);
+                map.CopyFrom(orig);
+                return map;
+            }
+
+            public void CopyFrom(Map3D orig)
+            {
+                for (int x = 0; x < orig.SizeX; x++)
+                {
+                    for (int y = 0; y < orig.SizeY; y++)
+                    {
+                        for (int z = 0; z < orig.SizeZ; z++)
+                        {
+                            At[x, y, z] = orig.At[x, y, z];
+                        }
+                    }
+                }
+            }
+            
         }
     }
 }

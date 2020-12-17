@@ -2,11 +2,11 @@ namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day11 : Day
     {
-        private Toolkit.Map _baseMap;
+        private Toolkit.Map2D _baseMap;
 
         public override void ReadInput(string content)
         {
-            _baseMap = content.ToMap();
+            _baseMap = content.ToMap2D();
         }
 
         public override object SolveFirst()
@@ -21,8 +21,8 @@ namespace Whiskee.AdventOfCode2020.Solutions
 
         private int PredictOccupied(bool extendSight, int threshold)
         {
-            var map = Toolkit.Map.CreateFrom(_baseMap);
-            var updated = Toolkit.Map.CreateFrom(map);
+            var map = Toolkit.Map2D.CreateFrom(_baseMap);
+            var updated = Toolkit.Map2D.CreateFrom(map);
             bool moved = true;
             
             while (moved)
@@ -55,7 +55,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return CountOccupied(map);
         }
 
-        private int CountOccupied(Toolkit.Map map)
+        private int CountOccupied(Toolkit.Map2D map)
         {
             int count = 0;
             for (int x = 0; x < map.Width; x++)
@@ -72,7 +72,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return count;
         }
 
-        private char? LookAtDirection(Toolkit.Map map, int xPos, int yPos, int xDirection, int yDirection, int distanceMax)
+        private char? LookAtDirection(Toolkit.Map2D map, int xPos, int yPos, int xDirection, int yDirection, int distanceMax)
         {
             int dist = 0;
                 
@@ -97,7 +97,7 @@ namespace Whiskee.AdventOfCode2020.Solutions
             return '.';
         }
 
-        private int CountSeen(Toolkit.Map map, int x, int y, bool extendSight)
+        private int CountSeen(Toolkit.Map2D map, int x, int y, bool extendSight)
         {
             int seen = 0;
             int distanceMax = extendSight ? int.MaxValue : 1;

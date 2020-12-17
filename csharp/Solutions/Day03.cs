@@ -2,11 +2,11 @@ namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day3 : Day
     {
-        private Toolkit.Map _map;
+        private Toolkit.Map2D _map;
         
         public override void ReadInput(string content)
         {
-            _map = content.ToMap();
+            _map = content.ToMap2D();
         }
 
         public override object SolveFirst()
