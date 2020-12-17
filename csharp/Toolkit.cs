@@ -105,32 +105,28 @@ namespace Whiskee.AdventOfCode2020
         {
             // ReSharper disable once FieldCanBeMadeReadOnly.Global
             public char[,,] At;
-            public readonly int SizeX;
-            public readonly int SizeY;
-            public readonly int SizeZ;
+            public readonly (int x, int y, int z) Size;
 
             public Map3D(int sizeX, int sizeY, int sizeZ)
             {
-                SizeX = sizeX;
-                SizeY = sizeY;
-                SizeZ = sizeZ;
-                At = new char[sizeX, sizeY, sizeZ];
+                Size = (sizeX, sizeY, sizeZ);
+                At = new char[Size.x, Size.y, Size.z];
             }
 
             public static Map3D CreateFrom(Map3D orig)
             {
-                var map = new Map3D(orig.SizeX, orig.SizeY, orig.SizeZ);
+                var map = new Map3D(orig.Size.x, orig.Size.y, orig.Size.z);
                 map.CopyFrom(orig);
                 return map;
             }
 
             public void CopyFrom(Map3D orig)
             {
-                for (int x = 0; x < orig.SizeX; x++)
+                for (int x = 0; x < orig.Size.x; x++)
                 {
-                    for (int y = 0; y < orig.SizeY; y++)
+                    for (int y = 0; y < orig.Size.y; y++)
                     {
-                        for (int z = 0; z < orig.SizeZ; z++)
+                        for (int z = 0; z < orig.Size.z; z++)
                         {
                             At[x, y, z] = orig.At[x, y, z];
                         }
@@ -138,6 +134,43 @@ namespace Whiskee.AdventOfCode2020
                 }
             }
             
+        }
+        
+        public class Map4D
+        {
+            // ReSharper disable once FieldCanBeMadeReadOnly.Global
+            public char[,,,] At;
+            public readonly (int x, int y, int z, int t) Size;
+
+            public Map4D(int sizeX, int sizeY, int sizeZ, int sizeT)
+            {
+                Size = (sizeX, sizeY, sizeZ, sizeT);
+                At = new char[Size.x, Size.y, Size.y, Size.t];
+            }
+
+            public static Map4D CreateFrom(Map4D orig)
+            {
+                var map = new Map4D(orig.Size.x, orig.Size.y, orig.Size.z, orig.Size.t);
+                map.CopyFrom(orig);
+                return map;
+            }
+
+            public void CopyFrom(Map4D orig)
+            {
+                for (int x = 0; x < orig.Size.x; x++)
+                {
+                    for (int y = 0; y < orig.Size.y; y++)
+                    {
+                        for (int z = 0; z < orig.Size.z; z++)
+                        {
+                            for (int t = 0; t < orig.Size.t; t++)
+                            {
+                                At[x, y, z, t] = orig.At[x, y, z, t];
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
