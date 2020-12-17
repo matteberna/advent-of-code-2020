@@ -1,116 +1,141 @@
-using System;
 using System.Collections.Generic;
 
 namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day17 : Day
     {
-        private Toolkit.Map3D _map;
+        private Toolkit.Map2D _slice;
+        private Toolkit.Map4D _map;
         private int _active;
 
         private const int Cycles = 6;
         
         public override void ReadInput(string content)
         {
-            var slice = content.ToMap2D();
-            int xSizeInitial = slice.Width;
-            int ySizeInitial = slice.Height;
-            int zSizeInitial = 1;
-            _map = new Toolkit.Map3D(xSizeInitial + Cycles * 2, ySizeInitial + Cycles * 2, zSizeInitial + Cycles * 2);
-            for (int x = 0; x < _map.SizeX; x++)
-            {
-                for (int y = 0; y < _map.SizeY; y++)
-                {
-                    for (int z = 0; z < _map.SizeZ; z++)
-                    {
-                        if (z == Cycles && x >= Cycles && y >= Cycles && x < _map.SizeX - Cycles && y < _map.SizeY - Cycles 
-                            && slice.At[x - Cycles, y - Cycles] == '#')
-                        {
-                            _map.At[x, y, z] = '#';
-                            _active++;
-                        }
-                        else
-                        {
-                            _map.At[x, y, z] = '.';
-                        }
-                    }
-                }
-            }
+            _slice = content.ToMap2D();
         }
 
         public override object SolveFirst()
         {
-            Simulate();
-            return _active;
+            GenerateMap();
+            return SimulateAndCount(3);
         }
 
         public override object SolveSecond()
         {
-            return null;
+            GenerateMap();
+            return SimulateAndCount(4);
         }
 
-        private void Simulate()
+        private void GenerateMap()
         {
-            var activate = new List<(int, int, int)>();
-            var deactivate = new List<(int, int, int)>();
+            _active = 0;
+            // The farthest active hypercube can be found at distance <Cycles> from the initial plane
+            int xySize = _slice.Width + 2 * Cycles;
+            const int ztSize = 1 + 2 * Cycles;
+            _map = new Toolkit.Map4D(xySize, xySize, ztSize, ztSize);
+            
+            // Default the entire map to '.' (inactive)
+            for (int x = 0; x < xySize; x++)
+            {
+                for (int y = 0; y < xySize; y++)
+                {
+                    for (int z = 0; z < ztSize; z++)
+                    {
+                        for (int t = 0; t < ztSize; t++)
+                        {
+                            _map.At[x, y, z, t] = '.';
+                        }
+                    }
+                }
+            }
+            
+            // Overwrite the central origin section where needed
+            for (int x = 0; x < _slice.Width; x++)
+            {
+                for (int y = 0; y < _slice.Height; y++)
+                {
+                    if (_slice.At[x, y] == '#')
+                    {
+                        _map.At[x + Cycles, y + Cycles, Cycles, Cycles] = '#';
+                        _active++;
+                    }
+                }
+            }
+        }
+
+        private int SimulateAndCount(int dimensions)
+        {
+            var activating = new List<(int, int, int, int)>();
+            var deactivating = new List<(int, int, int, int)>();
+            
             for (int c = 1; c <= Cycles; c++)
             {
-                activate.Clear();
-                deactivate.Clear();
-                for (int x = 0; x < _map.SizeX; x++)
+                activating.Clear();
+                deactivating.Clear();
+                
+                for (int x = 0; x < _map.Size.x; x++)
                 {
-                    for (int y = 0; y < _map.SizeY; y++)
+                    for (int y = 0; y < _map.Size.y; y++)
                     {
-                        for (int z = 0; z < _map.SizeZ; z++)
+                        for (int z = 0; z < _map.Size.z; z++)
                         {
-                            // This includes the point x, y, z
-                            int neighbors = CountNeighbors(x, y, z);
-                            
-                            if (_map.At[x, y, z] == '#' && neighbors != 3 && neighbors != 4)
+                            for (int t = 0; t < _map.Size.t; t++)
                             {
-                                deactivate.Add((x, y, z));
+                                // Are we considering the fourth dimension?
+                                if (dimensions == 3 && t != Cycles) continue;
                                 
-                            }
-                            else if (_map.At[x, y, z] == '.' && neighbors == 3)
-                            {
-                                activate.Add((x, y, z));
+                                // Apply the activation/deactivation rules
+                                if (_map.At[x, y, z, t] == '#' && CountNeighbors(x, y, z, t) is not (2 or 3))
+                                {
+                                    deactivating.Add((x, y, z, t));
+                                
+                                }
+                                else if (_map.At[x, y, z, t] == '.' && CountNeighbors(x, y, z, t) is 3)
+                                {
+                                    activating.Add((x, y, z, t));
+                                }
                             }
                         }
                     }
                 }
 
-                foreach ((int x, int y, int z) in activate)
+                foreach ((int x, int y, int z, int t) in activating)
                 {
-                    Console.WriteLine($"cycle {c}: activating {x-Cycles} {y-Cycles} {z-Cycles}");
-                    _map.At[x, y, z] = '#';
+                    _map.At[x, y, z, t] = '#';
                     _active++;
                 }
 
-                foreach ((int x, int y, int z) in deactivate)
+                foreach ((int x, int y, int z, int t) in deactivating)
                 {
-                    Console.WriteLine($"cycle {c}: deactivating {x-Cycles} {y-Cycles} {z-Cycles}");
-                    _map.At[x, y, z] = '.';
+                    _map.At[x, y, z, t] = '.';
                     _active--;
                 }
             }
+
+            return _active;
         }
 
-        private int CountNeighbors(int x, int y, int z)
+        private int CountNeighbors(int x, int y, int z, int t)
         {
-            int neighbors = 0;
-            for (int xNeigh = x - 1; xNeigh <= x + 1; xNeigh++)
+            int neighbors = _map.At[x, y, z, t] == '#'? -1 : 0;
+            
+            for (int nx = x - 1; nx <= x + 1; nx++)
             {
-                if (xNeigh < 0 || xNeigh >= _map.SizeX) continue;
-                for (int yNeigh = y - 1; yNeigh <= y + 1; yNeigh++)
+                if (nx < 0 || nx >= _map.Size.x) continue;
+                for (int ny = y - 1; ny <= y + 1; ny++)
                 {
-                    if (yNeigh < 0 || yNeigh >= _map.SizeY) continue;
-                    for (int zNeigh = z - 1; zNeigh <= z + 1; zNeigh++)
+                    if (ny < 0 || ny >= _map.Size.y) continue;
+                    for (int nz = z - 1; nz <= z + 1; nz++)
                     {
-                        if (zNeigh < 0 || zNeigh >= _map.SizeZ) continue;
-                        
-                        if (_map.At[xNeigh, yNeigh, zNeigh] == '#')
+                        if (nz < 0 || nz >= _map.Size.z) continue;
+                        for (int nt = t - 1; nt <= t + 1; nt++)
                         {
-                            neighbors++;
+                            if (nt < 0 || nt >= _map.Size.t) continue;
+                            if (_map.At[nx, ny, nz, nt] == '#')
+                            {
+                                neighbors++;
+                            }
                         }
                     }
                 }
