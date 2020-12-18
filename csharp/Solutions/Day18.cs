@@ -1,16 +1,19 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Whiskee.AdventOfCode2020.Solutions
 {
     public class Day18 : Day
     {
         private List<string[]> _expressions;
+
+        private const int MaxDepth = 10; // good enough for the input
         
         public override void ReadInput(string content)
         {
-            string[] expressionsData = content.SplitLines();
+            string[] data = content.SplitLines();
             _expressions = new List<string[]>();
-            foreach (string exp in expressionsData)
+            foreach (string exp in data)
             {
                 _expressions.Add(exp.Split(" "));
             }
@@ -18,61 +21,74 @@ namespace Whiskee.AdventOfCode2020.Solutions
 
         public override object SolveFirst()
         {
-            long global = 0;
-            foreach (string[] exp in _expressions)
+            return SumExpressions(false);
+        }
+
+        public override object SolveSecond()
+        {
+            return SumExpressions(true);
+        }
+
+        private long SumExpressions(bool advancedMath)
+        {
+            long result = 0;
+            
+            foreach (string[] expression in _expressions)
             {
-                bool[] adding = new bool[100];
-                bool[] multiplying = new bool[100];
-                long[] partial = new long[100];
+                char?[] sign = new char?[MaxDepth];
+                long[] partial = new long[MaxDepth];
                 int depth = 0;
-                foreach (string member in exp)
+
+                if (advancedMath)
                 {
-                    Evaluate(member);
+                    // Rewrite the expression with extra parentheses to make it compatible with the algorithm
+                    RewriteExpression(expression);
                 }
                 
-                void Evaluate(string member)
+                foreach (string fragment in expression)
                 {
-                    while (member.StartsWith("("))
+                    Evaluate(fragment);
+                }
+                
+                result += partial[0];
+                
+                void Evaluate(string fragment)
+                {
+                    // Open parenthesis
+                    while (fragment.StartsWith("("))
                     {
-                        member = member.Substring(1);
+                        fragment = fragment.Substring(1);
                         depth++;
                         partial[depth] = 0;
-                        adding[depth] = false;
-                        multiplying[depth] = false;
+                        sign[depth] = null;
                     }
-                    if (member == "+")
+                    // Operator
+                    if (fragment == "+" || fragment == "*")
                     {
-                        adding[depth] = true;
-                        multiplying[depth] = false;
+                        sign[depth] = fragment[0];
                     }
-                    else if (member == "*")
-                    {
-                        adding[depth] = false;
-                        multiplying[depth] = true;
-                    }
+                    // Number
                     else
                     {
-                        int closing = 0;
-                        while (member.EndsWith(")"))
+                        // Are parentheses closing after this?
+                        int rec = fragment.Count(m => m == ')');
+                        long value = long.Parse(fragment.Substring(0, fragment.Length - rec));
+
+                        switch (sign[depth])
                         {
-                            closing++;
-                            member = member.Substring(0, member.Length - 1);
-                        }
-                        long number = long.Parse(member);
-                        if (adding[depth])
-                        {
-                            partial[depth] += number;
-                        }
-                        else if (multiplying[depth])
-                        {
-                            partial[depth] *= number;
-                        }
-                        else
-                        {
-                            partial[depth] = number;
+                            case '+':
+                                partial[depth] += value;
+                                break;
+                            case '*':
+                                partial[depth] *= value;
+                                break;
+                            case null:
+                                partial[depth] = value;
+                                break;
                         }
 
-                        for (int i = 0; i < closing; i++)
+                        // Pass the value down to pending operations
+                        for (int i = 0; i < rec; i++)
                         {
                             depth--;
                             Evaluate(partial[depth + 1].ToString());
@@ -80,16 +96,46 @@ namespace Whiskee.AdventOfCode2020.Solutions
                         }
                     }
                 }
-
-                global += partial[0];
             }
 
-            return global;
+            return result;
         }
 
-        public override object SolveSecond()
+        private static void RewriteExpression(IList<string> exp)
         {
-            return null;
+            bool[] adding = new bool[MaxDepth];
+            int depth = 0;
+            
+            for (int i = 0; i < exp.Count; i++)
+            {
+                int jMax = exp[i].Count(c => c == '(');
+                for (int j = 0; j < jMax; j++)
+                {
+                    depth++;
+                    adding[depth] = false;
+                }
+
+                jMax = exp[i].Count(c => c == ')');
+                for (int j = 0; j < jMax; j++)
+                {
+                    if (adding[depth]) exp[i] = exp[i] + ")";
+                    adding[depth] = false;
+                    depth--;
+                }
+
+                if (!adding[depth])
+                {
+                    exp[i] = "(" + exp[i];
+                    adding[depth] = true;
+                }
+                else if (exp[i] == "*" && adding[depth])
+                {
+                    exp[i - 1] = exp[i - 1] + ")";
+                    adding[depth] = false;
+                }
+            }
+            
+            exp[^1] = exp[^1] + ")";
         }
     }
 }
