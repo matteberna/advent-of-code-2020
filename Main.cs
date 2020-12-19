@@ -9,22 +9,13 @@ namespace Whiskee.AdventOfCode2020
     {
         private static readonly Stopwatch Stopwatch = new();
         public static Day[] Days;
+
+        private const int Completed = 18;
         
         private static void Main()
         {
             AllocateDays();
             
-            // Immediately print the answers for the current day
-            for (int i = 25; i >= 1; i--)
-            {
-                if (Days[i] != null)
-                {
-                    Console.WriteLine(Environment.NewLine + $"AdventOfCode2020> solve {i}");
-                    WriteSolutions(i);
-                    break;
-                }
-            }
-
             while (true)
             {
                 Console.Write(Environment.NewLine + "AdventOfCode2020> ");
@@ -35,7 +26,7 @@ namespace Whiskee.AdventOfCode2020
                     case "exit":
                         return;
                     case "solve":
-                        if (int.TryParse(command[1], out int number) && number is >= 1 and <= 25)
+                        if (int.TryParse(command[1], out int number) && number is >= 1 and <= Completed)
                         {
                             WriteSolutions(number);
                         }
@@ -68,7 +59,7 @@ namespace Whiskee.AdventOfCode2020
 
         private static void AllocateDays()
         {
-            Days = new Day[25 + 1];
+            Days = new Day[Completed + 1];
             Days[1] = new Day1();
             Days[2] = new Day2();
             Days[3] = new Day3();
